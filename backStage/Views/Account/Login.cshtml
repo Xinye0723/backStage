@@ -37,6 +37,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chocolate+Classical+Sans&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Train+One&display=swap" rel="stylesheet">
     <link href="./lib/" rel="stylesheet" />
     <style>
         .chocolate-classical-sans-regular {
@@ -45,6 +48,23 @@
             font-style: normal;
             color:white;
         }
+
+        /* .monoton-regular {
+            font-family: "Monoton", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        } */
+        .focus-in-contract-bck {
+            font-family: "Train One", system-ui;
+            font-weight: 400;
+            font-style: normal;
+            -webkit-animation: focus-in-contract-bck 2s cubic-bezier(.25,.46,.45,.94) both;
+            animation: focus-in-contract-bck 2s cubic-bezier(.25,.46,.45,.94) both;
+            color: white;
+            font-size: 5rem;
+            letter-spacing: 0.3em;
+        }
+
     </style>
 </head>
 <body>
@@ -69,8 +89,11 @@
 
     <!-- 登入區塊：半透明置中，按鈕 Netflix 紅 -->
     <div class="login-container">
+        <div class="login-title">
+            <h1 class="focus-in-contract-bck">INFINITY CINEMA</h1>
+        </div>
         <div class="login-card">
-            <h3 class="chocolate-classical-sans-regular">INFINITY CINEMA <br />後台系統登入</h3>
+            <h3 class="chocolate-classical-sans-regular">後台系統登入</h3>
             
             <form asp-action="Login" asp-controller="Account" method="post">
                 <input type="text"

@@ -74,7 +74,7 @@
 }
 
 .col3 .poster-inner {
-    margin-top: 0px;
+    margin-top: -60px;
 }
 
 .col4 .poster-inner {
@@ -86,34 +86,35 @@
 }
 
 .col6 .poster-inner {
-    margin-top: 0px;
+    margin-top: -80px;
 }
 
 .col7 .poster-inner {
-    margin-top: -78px;
+    margin-top: 0px;
 }
 
 .col8 .poster-inner {
-    margin-top: 0px;
+    margin-top: -80px;
 }
 
 /* ---------------------------------
    6. 登入卡片樣式 (維持之前設定)
 ---------------------------------- */
 .login-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column; /* 讓子元素上下排列 */
+    align-items: center; /* 置中（左右） */
+    justify-content: center; /* 置中（上下） */
+    min-height: 100vh; /* 全螢幕置中 */
+    position: relative;
+    z-index: 1;
 }
 
 .login-card {
     width: 340px;
     background: rgba(0, 0, 0,0.7);
     padding: 3rem;
-    padding-top:20px;
+    padding-top: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
@@ -176,4 +177,47 @@
         .login-card h3 {
             font-size: 1.3rem;
         }
+}
+
+@-webkit-keyframes focus-in-contract-bck {
+    0% {
+        letter-spacing: 1em;
+        -webkit-transform: translateZ(300px);
+        transform: translateZ(300px);
+        -webkit-filter: blur(12px);
+        filter: blur(12px);
+        opacity: 0;
+    }
+
+    100% {
+        -webkit-transform: translateZ(12px);
+        transform: translateZ(12px);
+        -webkit-filter: blur(0);
+        filter: blur(0);
+        opacity: 1;
+    }
+}
+
+@keyframes focus-in-contract-bck {
+    0% {
+        letter-spacing: 1em;
+        -webkit-transform: translateZ(300px);
+        transform: translateZ(300px);
+        -webkit-filter: blur(12px);
+        filter: blur(12px);
+        opacity: 0;
+    }
+
+    100% {
+        -webkit-transform: translateZ(12px);
+        transform: translateZ(12px);
+        -webkit-filter: blur(0);
+        filter: blur(0);
+        opacity: 1;
+    }
+}
+
+.focus-in-contract-bck {
+    -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+    animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
 }

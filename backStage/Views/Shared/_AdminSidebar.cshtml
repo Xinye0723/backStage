@@ -1,0 +1,68 @@
+﻿<style>
+    .app-sidebar .nav-link span {
+        font-size: 1.1rem; /* 調整文字大小 */
+    }
+
+    .app-sidebar .nav-link i {
+        font-size: 1.3rem; /* 調整icon大小 */
+    }
+
+    .app-sidebar .sidebar-menu {
+        align-items: center; /* 水平置中所有選單 */
+    }
+
+    .app-sidebar .nav-link {
+        justify-content: center; /* icon+文字群組也置中 */
+    }
+</style>
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+
+    <div class="sidebar-brand" style="margin-top:5px; border:1px">
+        <a href="#"
+           class="brand-link d-flex align-items-center justify-content-center w-100">
+            <span class="brand-text fw-bolder" style="margin-top:5px;">INFINITY CINEMA</span>
+        </a>
+    </div>
+
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <ul class="nav sidebar-menu flex-column align-items-center" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                <li class="nav-item w-100 mb-3 mt-2">
+                    <a asp-controller="Movie" asp-action="Index" class="nav-link d-flex align-items-center justify-content-center">
+                        <i class="nav-icon fas fa-film me-2"></i><span class="mx-3">電影管理</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100  mb-3">
+                    <a asp-controller="Movie" asp-action="Index" class="nav-link d-flex align-items-center justify-content-center">
+                        <i class="fa-regular fa-pen-to-square me-2"></i><span class="mx-3">場次排程</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100 mb-3">
+                    <a asp-controller="Movie" asp-action="Index" class="nav-link d-flex align-items-center justify-content-center">
+                        <i class="ti-video-clapper me-2"></i><span class="mx-3">影廳管理</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100 mb-3">
+                    <a asp-controller="Movie" asp-action="Index" class="nav-link d-flex align-items-center justify-content-center">
+                        <i class="fa-regular fa-calendar-days me-2"></i><span class="mx-3">影城活動</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100 mb-3" >
+                    <a asp-controller="Movie" asp-action="Index" class="nav-link d-flex align-items-center justify-content-center">
+                        <i class="fa-regular fa-circle-user me-2"></i><span class="mx-3">會員管理</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100 mb-3" >
+                    <a asp-controller="Movie" asp-action="Index" class="nav-link d-flex align-items-center justify-content-center">
+                        <i class="fa-regular fa-id-badge me-2"></i><span class="mx-3">員工管理</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100 mb-3" >
+                    <a asp-controller="Movie" asp-action="Index" class="nav-link d-flex align-items-center justify-content-center">
+                        <i class="ti-bar-chart me-2"></i><span class="mx-3">報表分析</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>
