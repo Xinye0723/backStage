@@ -17,5 +17,9 @@ public partial class Seat
 
     public DateTime UpdatedAt { get; set; }
 
+    public string? Status { get; set; }
+
+    public int? ShowTimeId { get; set; }
+
     public virtual ICollection<SeatStatus> SeatStatuses { get; set; } = new List<SeatStatus>();
 }

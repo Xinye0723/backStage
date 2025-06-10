@@ -74,7 +74,7 @@
 }
 
 .col3 .poster-inner {
-    margin-top: -60px;
+    margin-top: 0px;
 }
 
 .col4 .poster-inner {
@@ -86,15 +86,15 @@
 }
 
 .col6 .poster-inner {
-    margin-top: -80px;
-}
-
-.col7 .poster-inner {
     margin-top: 0px;
 }
 
-.col8 .poster-inner {
+.col7 .poster-inner {
     margin-top: -80px;
+}
+
+.col8 .poster-inner {
+    margin-top: 0px;
 }
 
 /* ---------------------------------
@@ -220,4 +220,38 @@
 .focus-in-contract-bck {
     -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
     animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+    font-size: 5rem;
+    letter-spacing: 0.3em;
+    text-align: center;
+}
+/* 平板以下 (≤992px) */
+@media (max-width: 992px) {
+    .focus-in-contract-bck {
+        -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        font-size: 3.5rem;
+        letter-spacing: 0.25em;
+        text-align: center;
+    }
+}
+
+/* 手機以下 (≤576px) */
+@media (max-width: 576px) {
+    .focus-in-contract-bck {
+        -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        font-size: 2.5rem;
+        letter-spacing: 0.15em;
+        text-align: center;
+    }
+}
+
+@media (max-width: 375px) {
+    .focus-in-contract-bck {
+        -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        font-size: 2.5rem;
+        letter-spacing: 0.1em;
+        text-align: center;
+    }
 }

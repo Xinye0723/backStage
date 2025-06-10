@@ -6,10 +6,34 @@ namespace backStage.Models;
 
 public partial class MovieContext : DbContext
 {
+    public MovieContext()
+    {
+    }
+
+    public MovieContext(DbContextOptions<MovieContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<FavoriteMovie> FavoriteMovies { get; set; }
+
+    public virtual DbSet<Member> Members { get; set; }
+
+    public virtual DbSet<MemberViewRecord> MemberViewRecords { get; set; }
+
+    public virtual DbSet<Movie> Movies { get; set; }
+
+    public virtual DbSet<MovieGroup> MovieGroups { get; set; }
+
+    public virtual DbSet<MovieRating> MovieRatings { get; set; }
+
+    public virtual DbSet<MovieReview> MovieReviews { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+
+    public virtual DbSet<Registration> Registrations { get; set; }
 
     public virtual DbSet<Seat> Seats { get; set; }
 
@@ -19,10 +43,217 @@ public partial class MovieContext : DbContext
 
     public virtual DbSet<Snack> Snacks { get; set; }
 
+    public virtual DbSet<Staff> Staff { get; set; }
 
+    public virtual DbSet<Tag> Tags { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=movie;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<FavoriteMovie>(entity =>
+        {
+            entity.HasKey(e => e.FavoriteId).HasName("PK__Favorite__876A67357C7DED0D");
+
+            entity.Property(e => e.FavoriteId).HasColumnName("favoriteID");
+            entity.Property(e => e.FavoritedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("favoritedAt");
+            entity.Property(e => e.MemberId).HasColumnName("memberID");
+            entity.Property(e => e.MovieId).HasColumnName("movieID");
+        });
+
+        modelBuilder.Entity<Member>(entity =>
+        {
+            entity.ToTable("member");
+
+            entity.Property(e => e.MemberId)
+                .ValueGeneratedNever()
+                .HasColumnName("memberID");
+            entity.Property(e => e.MemberBirthDate)
+                .HasColumnType("datetime")
+                .HasColumnName("memberBirthDate");
+            entity.Property(e => e.MemberEmail)
+                .HasMaxLength(50)
+                .HasColumnName("memberEmail");
+            entity.Property(e => e.MemberGender)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("memberGender");
+            entity.Property(e => e.MemberImg)
+                .HasMaxLength(255)
+                .HasColumnName("memberImg");
+            entity.Property(e => e.MemberIntroSelf)
+                .HasMaxLength(100)
+                .HasColumnName("memberIntroSelf");
+            entity.Property(e => e.MemberName)
+                .HasMaxLength(10)
+                .HasColumnName("memberName");
+            entity.Property(e => e.MemberPassword)
+                .HasMaxLength(20)
+                .HasColumnName("memberPassword");
+            entity.Property(e => e.MemberPermission)
+                .HasMaxLength(5)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("memberPermission");
+        });
+
+        modelBuilder.Entity<MemberViewRecord>(entity =>
+        {
+            entity.HasKey(e => e.RecordId);
+
+            entity.ToTable("memberViewRecord");
+
+            entity.Property(e => e.RecordId)
+                .ValueGeneratedNever()
+                .HasColumnName("recordID");
+            entity.Property(e => e.MemberId)
+                .HasMaxLength(10)
+                .HasColumnName("memberID");
+            entity.Property(e => e.MovieId).HasColumnName("movieID");
+            entity.Property(e => e.MovieNameChinese)
+                .HasMaxLength(100)
+                .HasColumnName("movieName_Chinese");
+            entity.Property(e => e.MovieNameEnglish)
+                .HasMaxLength(100)
+                .HasColumnName("movieName_English");
+            entity.Property(e => e.WatchDate)
+                .HasColumnType("datetime")
+                .HasColumnName("watchDate");
+        });
+
+        modelBuilder.Entity<Movie>(entity =>
+        {
+            entity.HasKey(e => e.MovieId).HasName("PK__Movies__42EB372EE86C4B0C");
+
+            entity.Property(e => e.MovieId).HasColumnName("movieID");
+            entity.Property(e => e.BoxOffice).HasColumnName("boxOffice");
+            entity.Property(e => e.Country)
+                .HasMaxLength(100)
+                .HasColumnName("country");
+            entity.Property(e => e.Director)
+                .HasMaxLength(100)
+                .HasColumnName("director");
+            entity.Property(e => e.Distributor)
+                .HasMaxLength(100)
+                .HasColumnName("distributor");
+            entity.Property(e => e.Duration).HasColumnName("duration");
+            entity.Property(e => e.EndDate).HasColumnName("endDate");
+            entity.Property(e => e.IsEnded).HasColumnName("isEnded");
+            entity.Property(e => e.IsNowShowing).HasColumnName("isNowShowing");
+            entity.Property(e => e.IsReleased).HasColumnName("isReleased");
+            entity.Property(e => e.IsUpcoming).HasColumnName("isUpcoming");
+            entity.Property(e => e.MovieNameChinese)
+                .HasMaxLength(100)
+                .HasColumnName("movieName_Chinese");
+            entity.Property(e => e.MovieNameEnglish)
+                .HasMaxLength(100)
+                .HasColumnName("movieName_English");
+            entity.Property(e => e.MovieRatingId).HasColumnName("movieRatingID");
+            entity.Property(e => e.Plot).HasColumnName("plot");
+            entity.Property(e => e.PosterPicture)
+                .HasMaxLength(200)
+                .HasColumnName("posterPicture");
+            entity.Property(e => e.Production)
+                .HasMaxLength(100)
+                .HasColumnName("production");
+            entity.Property(e => e.ReleaseDate).HasColumnName("releaseDate");
+            entity.Property(e => e.Starring)
+                .HasMaxLength(100)
+                .HasColumnName("starring");
+            entity.Property(e => e.TrailerUrl)
+                .HasMaxLength(200)
+                .HasColumnName("trailerUrl");
+            entity.Property(e => e.ViewCount)
+                .HasDefaultValue(0)
+                .HasColumnName("viewCount");
+
+            entity.HasMany(d => d.Tags).WithMany(p => p.Movies)
+                .UsingEntity<Dictionary<string, object>>(
+                    "MovieTag",
+                    r => r.HasOne<Tag>().WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_MovieTags_Tags"),
+                    l => l.HasOne<Movie>().WithMany()
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_MovieTags_Movies"),
+                    j =>
+                    {
+                        j.HasKey("MovieId", "TagId").HasName("PK__MovieTag__27E4F7396F05AA9D");
+                        j.ToTable("MovieTags");
+                        j.IndexerProperty<int>("MovieId").HasColumnName("movieID");
+                        j.IndexerProperty<int>("TagId").HasColumnName("tagID");
+                    });
+        });
+
+        modelBuilder.Entity<MovieGroup>(entity =>
+        {
+            entity.HasKey(e => e.GroupId).HasName("PK__movieGro__88C102ADE1513D49");
+
+            entity.ToTable("movieGroup");
+
+            entity.Property(e => e.GroupId)
+                .ValueGeneratedNever()
+                .HasColumnName("groupID");
+            entity.Property(e => e.CreateTime)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("createTime");
+            entity.Property(e => e.GroupName)
+                .HasMaxLength(100)
+                .HasColumnName("groupName");
+            entity.Property(e => e.GroupNote)
+                .HasMaxLength(255)
+                .HasColumnName("groupNote");
+            entity.Property(e => e.LeaderMemberId).HasColumnName("leaderMemberID");
+            entity.Property(e => e.MaxMembers).HasColumnName("maxMembers");
+            entity.Property(e => e.MovieId).HasColumnName("movieID");
+            entity.Property(e => e.ShowTimeId).HasColumnName("showTimeID");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasColumnName("status");
+        });
+
+        modelBuilder.Entity<MovieRating>(entity =>
+        {
+            entity.HasKey(e => e.MovieRatingId).HasName("PK__MovieRat__785C5BB6D12A7F8D");
+
+            entity.HasIndex(e => e.RatingCode, "UQ__MovieRat__602ABCCAB50B617C").IsUnique();
+
+            entity.Property(e => e.MovieRatingId).HasColumnName("movieRatingID");
+            entity.Property(e => e.Description)
+                .HasMaxLength(50)
+                .HasColumnName("description");
+            entity.Property(e => e.RatingCode)
+                .HasMaxLength(10)
+                .HasColumnName("ratingCode");
+        });
+
+        modelBuilder.Entity<MovieReview>(entity =>
+        {
+            entity.HasKey(e => e.MovieReviewId).HasName("PK__MovieRev__7CAE733346EF48CA");
+
+            entity.Property(e => e.MovieReviewId).HasColumnName("movieReviewID");
+            entity.Property(e => e.Comment).HasColumnName("comment");
+            entity.Property(e => e.IsPublic)
+                .HasDefaultValue(true)
+                .HasColumnName("isPublic");
+            entity.Property(e => e.MemberId).HasColumnName("memberID");
+            entity.Property(e => e.MovieId).HasColumnName("movieID");
+            entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.ReviewedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("reviewedAt");
+        });
+
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAF2F55C8E9");
@@ -61,6 +292,30 @@ public partial class MovieContext : DbContext
                 .HasConstraintName("FK_OrderDetail_Orders");
         });
 
+        modelBuilder.Entity<Registration>(entity =>
+        {
+            entity.HasKey(e => e.RegistrationId).HasName("PK__registra__A3DB1415F64220DE");
+
+            entity.ToTable("registration");
+
+            entity.Property(e => e.RegistrationId)
+                .ValueGeneratedNever()
+                .HasColumnName("registrationID");
+            entity.Property(e => e.GroupId).HasColumnName("groupID");
+            entity.Property(e => e.MemberId).HasColumnName("memberID");
+            entity.Property(e => e.Members).HasColumnName("members");
+            entity.Property(e => e.RegistrationDate)
+                .HasColumnType("datetime")
+                .HasColumnName("registrationDate");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasColumnName("status");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.Registrations)
+                .HasForeignKey(d => d.GroupId)
+                .HasConstraintName("FK__registrat__group__03F0984C");
+        });
+
         modelBuilder.Entity<Seat>(entity =>
         {
             entity.HasKey(e => e.SeatId).HasName("PK__Seat__311713D3974E8C2F");
@@ -75,6 +330,10 @@ public partial class MovieContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.SeatNumber).HasMaxLength(5);
             entity.Property(e => e.SeatRow).HasMaxLength(5);
+            entity.Property(e => e.ShowTimeId).HasColumnName("ShowTimeID");
+            entity.Property(e => e.Status)
+                .HasMaxLength(10)
+                .HasColumnName("status");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -146,6 +405,42 @@ public partial class MovieContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Staff>(entity =>
+        {
+            entity.ToTable("staff");
+
+            entity.Property(e => e.StaffId)
+                .ValueGeneratedNever()
+                .HasColumnName("staffID");
+            entity.Property(e => e.StaffEmail)
+                .HasMaxLength(50)
+                .HasColumnName("staffEmail");
+            entity.Property(e => e.StaffName)
+                .HasMaxLength(10)
+                .HasColumnName("staffName");
+            entity.Property(e => e.StaffPassword)
+                .HasMaxLength(20)
+                .HasColumnName("staffPassword");
+            entity.Property(e => e.StaffPermission)
+                .HasMaxLength(5)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("staffPermission");
+            entity.Property(e => e.StaffPhone).HasColumnName("staffPhone");
+        });
+
+        modelBuilder.Entity<Tag>(entity =>
+        {
+            entity.HasKey(e => e.TagId).HasName("PK__Tags__50FC01770A9A1EB3");
+
+            entity.HasIndex(e => e.TagName, "UQ__Tags__288C385129599960").IsUnique();
+
+            entity.Property(e => e.TagId).HasColumnName("tagID");
+            entity.Property(e => e.TagName)
+                .HasMaxLength(50)
+                .HasColumnName("tagName");
         });
 
         OnModelCreatingPartial(modelBuilder);

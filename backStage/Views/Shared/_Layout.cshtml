@@ -9,35 +9,36 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
         .app-wrapper {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
+
         .app-main {
             flex: 1 0 auto;
         }
+
+        
     </style>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
     <link rel="stylesheet" href="~/css/adminlte.css" />
     <link rel="stylesheet" href="~/themify/themify-icons/themify-icons.css" />
+    
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body class="sidebar-expand-lg bg-body-tertiary">
+<body class="sidebar-expand-lg bg-body-tertiary d-flex flex-column min-vh-100">
     <div class="app-wrapper">
         <partial name="_AdminHeader" />
         <partial name="_AdminSidebar" />
         <main class="app-main">
-            <div class="app-content-header">
-                <div class="container-fluid">
-                    @* <h3 class="mb-0">@ViewData["Title"]</h3> *@
-                </div>
-            </div>
             <div class="app-content">
-                <div class="container-fluid pt-3">
+                <div class="container-fluid">
                     @RenderBody()
                 </div>
             </div>
