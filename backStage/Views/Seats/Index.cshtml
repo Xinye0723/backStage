@@ -1,164 +1,88 @@
 ﻿@{
     Layout = "_Layout";
-    <link rel="stylesheet" href="./css/seats.css" />
 }
-
-<!--
-修改重點：
-1.   移除重複的 vh‑100，改用 h‑100 搭配自訂 .full-height
-     (height: calc(100vh ‑ 2rem))，讓卡片距離視窗頂/底皆為
-     container 的 p‑3 (1 rem) 內距，呈現上下等距效果。
-2.   在 row/col/card 上加 h‑100 或 flex-fill，避免高度外溢。
--->
-
 <style>
     /* 讓內容高度＝整個視窗高度 − container 上下 1rem padding */
     .full-height {
         height: calc(100vh - 6rem);
     }
-    
 </style>
-
 <div class="container-fluid p-3 h-100">
     <div class="row gx-3 full-height mx-auto">
-        <!-- 左側 2 欄 -->
+
+        <!-- 左側 影廳設定表單 -->
         <div class="col-12 col-md-3 col-lg-2 d-flex flex-column h-md-100 mb-3 mb-md-0">
-            <div class="card flex-fill d-flex flex-column">
+            <div class="card flex-fill">
                 <div class="card-body d-flex flex-column">
                     <form asp-action="Create" asp-controller="Seats">
-                        <!-- 影廳名稱 -->
                         <div class="mb-3">
                             <label class="form-label">影廳名稱</label>
                             <select class="form-select">
                                 <option value="">請選擇影廳</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
+                                <option>A</option>
+                                <option>B</option>
+                                <option>C</option>
                             </select>
                         </div>
-                        <!-- 影廳類型 -->
                         <div class="mb-3">
                             <label class="form-label">影廳類型</label>
                             <select class="form-select">
                                 <option value="">請選擇影廳類型</option>
-                                <option value="2D">2D</option>
-                                <option value="3D">3D</option>
-                                <option value="IMAX">IMAX</option>
+                                <option>2D</option>
+                                <option>3D</option>
+                                <option>IMAX</option>
                             </select>
                         </div>
-                        <!-- 貼齊底部的送出按鈕 -->
                         <div class="mt-auto d-grid">
-                            <button type="submit" class="btn btn-primary">儲存影廳</button>
+                            <button class="btn btn-primary">儲存影廳</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- 右側 10 欄 -->
+        <!-- 右側 座位表 -->
         <div class="col-12 col-md-9 col-lg-10 d-flex flex-column h-md-100">
-            <div class="card flex-fill d-flex flex-column">
+            <div class="card flex-fill">
                 <div class="card-header">座位表</div>
-                <div class="card-body d-flex flex-column flex-fill p-0">
+                <div class="card-body p-0 d-flex flex-column">
                     <div class="container">
-                        
                         <div class="row-container">
-                            <div class="row">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
+                            @* 螢幕 *@
+                            <div class="movie-screen">
+                                <img src='./images/img/screen-thumb.png' alt='screen' />
                             </div>
+                            <!-- 以下直接複製你的 row，就不再貼滿 -->
                             <div class="row">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
+                                @for (int i = 0; i < 26; i++)
+                                {
+                                    <div class="seat"></div>
+                                }
                             </div>
-                            <div class="row">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                            </div>
-                            <div class="row">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                            </div>
-                            <div class="row">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                            </div>
-                            <div class="row">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat occupied"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                            </div>
-                           
-
                             
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
-@* @section Scripts{
-    <script src="./js/seats.js"></script>
-} *@
+
+@section Scripts {
+    <script>
+        // 1. 抓可點的 seat
+        const seatContainer = document.querySelector('.row-container');
+        const seats        = seatContainer.querySelectorAll('.seat:not(.occupied)');
+
+        // 2. 點擊切換 selected
+        seatContainer.addEventListener('click', e=>{
+          if(!e.target.classList.contains('seat') ||
+             e.target.classList.contains('occupied')) return;
+          e.target.classList.toggle('selected');
+        });
+
+        // 👉 若日後要加「計算總張數、票價、LocalStorage」
+        //    直接在這裡呼叫一個 updateSelectedCount() 就行。
+    </script>
+}
