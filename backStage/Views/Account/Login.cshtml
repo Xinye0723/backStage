@@ -66,6 +66,17 @@
 
         }
 
+        .forgot-password a{
+            color: white;
+            text-shadow: 0px 0px 5px black;
+            font-size:12px;
+        }
+
+        .forgot-password {
+            margin-bottom: 20px; /* 增加與登入按鈕的距離 */
+        }
+
+
 
     </style>
 </head>
@@ -110,11 +121,16 @@
                        name="password"
                        placeholder="請輸入密碼"
                        required />
+                <div class="forgot-password">
+                    <a href="/Account/ForgotPassword">忘記密碼？</a>
+                </div>
                 <button type="submit" class="login-button">登入</button>
                 @if (ViewBag.ErrorMessage != null)
                 {
                     <div class="text-error"><i class="fa-solid fa-triangle-exclamation" style="color: #b20710;"></i> @ViewBag.ErrorMessage</div>
                 }
+                
+
             </form>
         </div>
     </div>
