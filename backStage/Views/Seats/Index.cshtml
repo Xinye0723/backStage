@@ -1,16 +1,21 @@
 ﻿@{
     Layout = "_Layout";
+
+    /* === 想改排數、列數在這裡改 === */
+    int rowCount = 12;   // 座位排數
+    int seatsPerRow = 25;  // 每排座位數
 }
-<style>
-    /* 讓內容高度＝整個視窗高度 − container 上下 1rem padding */
-    .full-height {
-        height: calc(100vh - 6rem);
-    }
-</style>
+@section Styles{
+    <style>
+        .full-height{ height:calc(100vh - 6rem); }
+
+    </style>
+}
+<!-- ▽▽ 頁面本體 ▽▽ -->
 <div class="container-fluid p-3 h-100">
     <div class="row gx-3 full-height mx-auto">
 
-        <!-- 左側 影廳設定表單 -->
+        <!-- 左側設定表單 -->
         <div class="col-12 col-md-3 col-lg-2 d-flex flex-column h-md-100 mb-3 mb-md-0">
             <div class="card flex-fill">
                 <div class="card-body d-flex flex-column">
@@ -41,25 +46,32 @@
             </div>
         </div>
 
-        <!-- 右側 座位表 -->
-        <div class="col-12 col-md-9 col-lg-10 d-flex flex-column h-md-100">
+        <!-- 右側座位表 -->
+        <div class="col-12 col-md-9 col-lg-10 d-flex flex-column h-md-100 seat-col">
             <div class="card flex-fill">
                 <div class="card-header">座位表</div>
                 <div class="card-body p-0 d-flex flex-column">
-                    <div class="container">
+
+                    <!-- 座位區（可水平捲動） -->
+                    <div class="seats-wrapper">
                         <div class="row-container">
-                            @* 螢幕 *@
+
+                            <!-- 螢幕示意圖 -->
                             <div class="movie-screen">
-                                <img src='./images/img/screen-thumb.png' alt='screen' />
+                                <img src="~/images/img/screen-thumb.png" alt="screen" />
                             </div>
-                            <!-- 以下直接複製你的 row，就不再貼滿 -->
-                            <div class="row">
-                                @for (int i = 0; i < 26; i++)
-                                {
-                                    <div class="seat"></div>
-                                }
-                            </div>
-                            
+
+                            <!-- 座位動態產生 -->
+                            @for (int r = 0; r < rowCount; r++)
+                            {
+                                <div class="seat-row">
+                                    @for (int c = 0; c < seatsPerRow; c++)
+                                    {
+                                        <div class="seat"></div>
+                                    }
+                                </div>
+                            }
+
                         </div>
                     </div>
                 </div>
@@ -69,20 +81,14 @@
     </div>
 </div>
 
+<!-- ▽▽ 點選變色腳本 ▽▽ -->
 @section Scripts {
     <script>
-        // 1. 抓可點的 seat
-        const seatContainer = document.querySelector('.row-container');
-        const seats        = seatContainer.querySelectorAll('.seat:not(.occupied)');
-
-        // 2. 點擊切換 selected
-        seatContainer.addEventListener('click', e=>{
-          if(!e.target.classList.contains('seat') ||
-             e.target.classList.contains('occupied')) return;
-          e.target.classList.toggle('selected');
+        const seatWrapper  = document.querySelector('.seats-wrapper');
+        seatWrapper.addEventListener('click', e=>{
+            if(!e.target.classList.contains('seat') ||
+               e.target.classList.contains('occupied')) return;
+            e.target.classList.toggle('selected');
         });
-
-        // 👉 若日後要加「計算總張數、票價、LocalStorage」
-        //    直接在這裡呼叫一個 updateSelectedCount() 就行。
     </script>
 }

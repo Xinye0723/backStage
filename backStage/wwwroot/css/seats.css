@@ -1,6 +1,13 @@
-﻿.movie-screen {
-    margin-top: 35px;
-    margin-bottom: 35px;
+﻿/* =============  1. 右側欄位願意收縮  ============= */
+/*   在 Razor 加一個 class="seat-col"，或直接選擇你那段欄位 */
+.seat-col {
+    min-width: 0;
+}
+/* ✨ 關鍵：允許被壓縮 */
+
+/* =============  2. 螢幕示意圖  ============= */
+.movie-screen {
+    margin: 35px auto;
     text-align: center;
 }
 
@@ -8,40 +15,53 @@
         max-width: 85%;
     }
 
-@media (max-width: 576px) {
-    .movie-screen img {
-        max-width: 92%;
+@media(max-width:576px) {
+    .movie-screen {
+        margin: 25px auto 20px;
     }
 
-    .movie-screen {
-        margin-top: 25px;
-        margin-bottom: 20px;
-    }
+        .movie-screen img {
+            max-width: 92%;
+        }
 }
 
-
+/* =============  3. 外層排版容器  ============= */
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+/*   讓座位區本身捲動，而不是撐破父元素  */
+.seats-wrapper {
+    width: 100%; /* 佔滿卡片寬度 */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px; /* 給 overlay scrollbar 空間 */
+    display: flex;
+    justify-content: center;
+}
+
 .row-container {
+    width: max-content; /* 依內容撐開，但在 seats-wrapper 裡橫向捲 */
     margin-top: 30px;
 }
 
-.row {
+/* =============  4. 每一排座位  ============= */
+.seat-row {
     display: flex;
+    flex-wrap: nowrap; /* 不換行 */
+    justify-content: center; /* 內容沒撐滿時置中 */
 }
 
-/* ==== 座位本體 ==== */
+/* =============  5. 座位本體  ============= */
 .seat {
-    height: 30px;
     width: 35px;
+    height: 30px; /* 固定大小（易點擊）*/
     margin: 5px;
     border-radius: 10px 10px 0 0;
     background: gray; /* 空位 */
-    border: 2px solid gray; /* 邊框 */
+    border: 2px solid gray;
     transition: .2s;
 }
 
@@ -55,9 +75,10 @@
     /* 已售 */
     .seat:not(.occupied):hover {
         cursor: pointer;
-        transform: scale(1.2);
+        transform: scale(1.1);
     }
-    /* 中間走道 */
+
+    /* --- 走道空隙：第 4、5 顆之間留 60px --- */
     .seat:nth-of-type(4) {
         margin-right: 60px;
     }
@@ -66,10 +87,19 @@
         margin-left: 60px;
     }
 
-
+/* =============  6. 手機尺寸微縮  ============= */
 @media(max-width:576px) {
     .seat {
+        width: 25px;
         height: 21px;
-        width: 23px;
     }
+        /* 座位縮小 */
+        /* 走道也跟著縮，避免佔滿整寬 */
+        .seat:nth-of-type(4) {
+            margin-right: 30px;
+        }
+
+        .seat:nth-last-of-type(4) {
+            margin-left: 30px;
+        }
 }
