@@ -1,4 +1,4 @@
-﻿@model backStage.Models.Seat
+﻿@model backStage.viewModels.SeatBatchVM
 
 @{
     ViewData["Title"] = "Create";
@@ -16,16 +16,6 @@
                 <label asp-for="TheaterNumber" class="control-label"></label>
                 <input asp-for="TheaterNumber" class="form-control" />
                 <span asp-validation-for="TheaterNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SeatRow" class="control-label"></label>
-                <input asp-for="SeatRow" class="form-control" />
-                <span asp-validation-for="SeatRow" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SeatNumber" class="control-label"></label>
-                <input asp-for="SeatNumber" class="form-control" />
-                <span asp-validation-for="SeatNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

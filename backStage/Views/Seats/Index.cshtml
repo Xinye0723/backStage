@@ -1,14 +1,24 @@
-﻿@{
+﻿@model List<backStage.Models.Seat>
+@{
     Layout = "_Layout";
 
-    /* === 想改排數、列數在這裡改 === */
-    int rowCount = 12;   // 座位排數
-    int seatsPerRow = 25;  // 每排座位數
-}
-@section Styles{
-    <style>
-        .full-height{ height:calc(100vh - 6rem); }
 
+    int rowCount = 15;   
+    int seatsPerRow = 25;  
+    var halls = ViewBag.HallList as List<int>;
+}
+@section Styles {
+    <style>
+        .full-height {
+            height: calc(100vh - 6rem);
+        }
+
+        @@media (max-width: 767.98px) { /* Bootstrap 的 md 斷點 - 0.02 */
+            .full-height {
+                height: auto !important;
+            }
+        }
+        
     </style>
 }
 <!-- ▽▽ 頁面本體 ▽▽ -->
@@ -19,29 +29,43 @@
         <div class="col-12 col-md-3 col-lg-2 d-flex flex-column h-md-100 mb-3 mb-md-0">
             <div class="card flex-fill">
                 <div class="card-body d-flex flex-column">
-                    <form asp-action="Create" asp-controller="Seats">
-                        <div class="mb-3">
+                    <div class="d-grid gap-2 mb-4">
+                        <a asp-action="Create" asp-controller="Seats" class="btn btn-primary">新增影廳</a>
+                        <a asp-action="Edit" asp-controller="Seats" class="btn btn-warning">編輯影廳</a>
+                        <a id="deleteHallBtn" class="btn btn-danger disabled"
+                           data-base="@Url.Action("DeleteHall", "Seats")">
+                            刪除影廳
+                        </a>
+                    </div>
+                    <div>
+                        <label class="form-label">影廳名稱</label>
+                        <select id="hallSelect" class="form-select">
+                            <option value="">請選擇影廳</option>
+                            @foreach (var h in halls)
+                            {
+                                <option value="@h">@h</option>
+                            }
+                        </select>
+                    </div>
+                    @* <form asp-action="Index" asp-controller="Seats" method="get"
+                          class="d-flex flex-column gap-3 flex-grow-1">
+                        <div>
                             <label class="form-label">影廳名稱</label>
-                            <select class="form-select">
+                            <select id="hallSelect" name="theaterNumber" class="form-select">
                                 <option value="">請選擇影廳</option>
-                                <option>A</option>
-                                <option>B</option>
-                                <option>C</option>
+                                @foreach (var h in halls)
+                                {
+                                    <option value="@h">@h</option>
+                                }
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">影廳類型</label>
-                            <select class="form-select">
-                                <option value="">請選擇影廳類型</option>
-                                <option>2D</option>
-                                <option>3D</option>
-                                <option>IMAX</option>
-                            </select>
-                        </div>
-                        <div class="mt-auto d-grid">
-                            <button class="btn btn-primary">儲存影廳</button>
-                        </div>
-                    </form>
+
+                        <button type="submit"
+                                class="btn btn-outline-primary w-100">
+                            搜尋影廳
+                        </button>
+                    </form> *@
+
                 </div>
             </div>
         </div>
@@ -71,6 +95,7 @@
                                     }
                                 </div>
                             }
+                            
 
                         </div>
                     </div>
@@ -91,4 +116,31 @@
             e.target.classList.toggle('selected');
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const hallSelect = document.getElementById('hallSelect');
+            const deleteBtn  = document.getElementById('deleteHallBtn');
+            const baseUrl    = deleteBtn.dataset.base;      // /Seats/DeleteHall
+
+            // ① 共用的啟用 / 停用函式
+            const updateBtn = () => {
+                const val = hallSelect.value.trim();        // 去掉空白
+                if (val) {
+                    deleteBtn.classList.remove('disabled');
+                    deleteBtn.href = `${baseUrl}?theaterNumber=${val}`;
+                } else {
+                    deleteBtn.classList.add('disabled');
+                    deleteBtn.href = "#";
+                }
+            };
+
+            // ② 監聽選單變更
+            hallSelect.addEventListener('change', updateBtn);
+
+            // ③ 首頁載入時就判斷一次（避免回傳搜尋後仍顯示 disabled）
+            updateBtn();
+        });
+    </script>
 }
+
+

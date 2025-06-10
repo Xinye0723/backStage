@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using backStage.Models;
+using backStage.viewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using backStage.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 
 namespace backStage.Controllers
 {
@@ -13,15 +15,48 @@ namespace backStage.Controllers
     {
         private readonly MovieContext _context;
 
+
         public SeatsController(MovieContext context)
         {
             _context = context;
         }
+        // /Seats/GetSeats?theaterNumber=1
+        [HttpGet]
+        public async Task<IActionResult> GetSeats(int theaterNumber)
+        {
+            var data = await _context.Seats
+            .Where(s => s.TheaterNumber == theaterNumber)
+            .Select(s => new
+            {
+                Row = s.SeatRow.Trim(),            // ← 去掉空白
+                Number = int.Parse(s.SeatNumber),
+                IsSold = s.Status != null
+            })
+            .ToListAsync();
+
+            return Json(data);                         // 給前端 JS
+        }
 
         // GET: Seats
-        public async Task<IActionResult> Index()
+
+        public async Task<IActionResult> Index(int? theaterNumber /* ← 供搜尋 */)
         {
-            return View(await _context.Seats.ToListAsync());
+            // ① 取得所有影廳號（distinct + 排序）
+            var halls = await _context.Seats
+                         .Select(s => s.TheaterNumber)
+                         .Distinct()
+                         .OrderBy(n => n)
+                         .ToListAsync();
+
+            ViewBag.HallList = halls;            // 傳給 <select>
+
+            // ② 如果帶了 theaterNumber，就只撈那個廳的座位
+            var seatsQuery = _context.Seats.AsQueryable();
+            if (theaterNumber.HasValue)
+                seatsQuery = seatsQuery.Where(s => s.TheaterNumber == theaterNumber);
+
+            var seats = await seatsQuery.ToListAsync();
+            return View(seats);                  // 原本 Scaffold 的 model = List<Seat>
         }
 
         // GET: Seats/Details/5
@@ -43,26 +78,51 @@ namespace backStage.Controllers
         }
 
         // GET: Seats/Create
+
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Seats/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SeatId,TheaterNumber,SeatRow,SeatNumber,CreatedAt,UpdatedAt")] Seat seat)
+        public async Task<IActionResult> Create(SeatBatchVM vm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(vm);
+
+
+            if (await _context.Seats.AnyAsync(s => s.TheaterNumber == vm.TheaterNumber))
             {
-                _context.Add(seat);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, $"影廳 {vm.TheaterNumber} 已存在座位資料！");
+                return View(vm);
             }
-            return View(seat);
+
+            var now = DateTime.Now;
+            var seats = new List<Seat>(vm.Rows * vm.SeatsPerRow);
+
+            for (int r = 0; r < vm.Rows; r++)
+            {
+                var rowLetter = ((char)('A' + r)).ToString();      // A~O
+                for (int n = 1; n <= vm.SeatsPerRow; n++)
+                {
+                    seats.Add(new Seat
+                    {
+                        TheaterNumber = vm.TheaterNumber,
+                        SeatRow = rowLetter,
+                        SeatNumber = n.ToString(),
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    });
+                }
+            }
+
+            _context.Seats.AddRange(seats);   // ⑤ 一次批次寫入
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
+
+
 
         // GET: Seats/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -151,6 +211,33 @@ namespace backStage.Controllers
         private bool SeatExists(int id)
         {
             return _context.Seats.Any(e => e.SeatId == id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteHall(int? theaterNumber)
+        {
+            if (theaterNumber == null) return NotFound();
+
+            var total = await _context.Seats
+                          .CountAsync(s => s.TheaterNumber == theaterNumber);
+
+            if (total == 0) return NotFound();          // 該廳本來就沒資料
+
+            ViewBag.Total = total;                      // 傳筆數給 View
+            return View(theaterNumber);                 // Model= int (影廳號)
+        }
+
+        [HttpPost, ActionName("DeleteHall")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteHallConfirmed(int theaterNumber)
+        {
+            var seats = _context.Seats
+                       .Where(s => s.TheaterNumber == theaterNumber);
+
+            _context.Seats.RemoveRange(seats);          // ⬅ 一次刪
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -1,0 +1,18 @@
+﻿@model int      
+@{
+    ViewData["Title"] = "刪除影廳座位";
+    var total = ViewBag.Total ?? 0;
+}
+
+<h1 class="text-danger">確定刪除影廳 @Model？</h1>
+<p class="lead">
+    此操作將一次移除 <strong>@total</strong> 筆座位資料，且無法復原！
+</p>
+
+<form asp-action="DeleteHall"
+      asp-route-theaterNumber="@Model"
+      method="post">
+    <button type="submit" class="btn btn-danger">確定刪除</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">取消</a>
+</form>
+
