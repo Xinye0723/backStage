@@ -1,0 +1,160 @@
+﻿@{
+    Layout = null;
+
+    // 定義 26 張海報檔名 (放在 wwwroot/images/posters/ 底下)
+    var allPosters = new List<string>
+    {
+        "1.webp",  "2.webp",  "3.webp",  "4.webp",  "5.webp",
+        "6.webp",  "7.webp",  "8.webp",  "9.webp",  "10.webp",
+        "11.webp", "12.webp", "13.webp", "14.webp", "15.webp",
+        "16.webp", "17.webp", "18.webp", "19.webp", "20.webp",
+        "21.webp", "22.webp", "23.webp", "24.webp", "25.webp",
+        "26.webp"
+    };
+
+    // 隨機打亂順序
+    var rnd = new Random();
+    var shuffled = allPosters.OrderBy(x => rnd.Next()).ToList();
+
+    // 將打亂後的 26 張依序分配到 8 欄 (index % 8)
+    var groups = new List<List<string>>();
+    for (int i = 0; i < 8; i++)
+    {
+        groups.Add(new List<string>());
+    }
+    for (int i = 0; i < shuffled.Count; i++)
+    {
+        groups[i % 8].Add(shuffled[i]);
+    }
+}
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>INFINITY CINEMA 後台登入</title>
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chocolate+Classical+Sans&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Train+One&display=swap" rel="stylesheet">
+    <link href="./lib/" rel="stylesheet" />
+    <style>
+        .chocolate-classical-sans-regular {
+            font-family: "Chocolate Classical Sans", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            color: white;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        /* .monoton-regular {
+                    font-family: "Monoton", sans-serif;
+                    font-weight: 400;
+                    font-style: normal;
+                } */
+        .focus-in-contract-bck {
+            font-family: "Train One", system-ui;
+            font-weight: 400;
+            font-style: normal;
+            -webkit-animation: focus-in-contract-bck 2s cubic-bezier(.25,.46,.45,.94) both;
+            animation: focus-in-contract-bck 2s cubic-bezier(.25,.46,.45,.94) both;
+            color: white;
+        }
+
+        .forgot-password a {
+            color: white;
+            text-shadow: 0px 0px 5px black;
+            font-size: 12px;
+        }
+
+        .forgot-password {
+            margin-bottom: 20px; /* 增加與登入按鈕的距離 */
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 背景：拆成 8 欄，各自一個無縫向上滾動的瀑布流 -->
+    <div class="poster-bg">
+        @for (int colIndex = 0; colIndex < 8; colIndex++)
+        {
+            <div class="poster-col col@(colIndex + 1)">
+                <div class="poster-inner">
+                    @* 只做兩次 (一組 + 重複一組) 無縫循環 *@
+                    @for (int repeat = 0; repeat < 2; repeat++)
+                    {
+                        foreach (var filename in groups[colIndex])
+                        {
+                            <img src="~/images/posters/@filename" alt="海報 @filename" />
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- 登入區塊：半透明置中，按鈕 Netflix 紅 -->
+    <div class="login-container">
+        <div class="login-title">
+            <h1 class="focus-in-contract-bck">INFINITY CINEMA</h1>
+        </div>
+        <div class="login-card">
+            <p class="chocolate-classical-sans-regular">後台系統登入<p />
+
+            <form asp-action="Login" asp-controller="Account" method="post">
+                <input type="text"
+                       class="login-input"
+                       id="username"
+                       name="username"
+                       placeholder="請輸入帳號"
+                       required />
+                <input type="password"
+                       class="login-input"
+                       id="password"
+                       name="password"
+                       placeholder="請輸入密碼"
+                       required />
+                <div class="forgot-password">
+                    <a href="/Account/ForgotPassword">忘記密碼？</a>
+                </div>
+                <button type="submit" class="login-button">登入</button>
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <div class="text-error"><i class="fa-solid fa-triangle-exclamation" style="color: #b20710;"></i> @ViewBag.ErrorMessage</div>
+                }
+
+
+            </form>
+        </div>
+    </div>
+
+    <!-- 載入完後，動態檢查 poster-inner 高度，不夠就自動再複製一次 -->
+    <script>
+        window.addEventListener('load', function () {
+          // 針對每個欄內的 .poster-inner
+          document.querySelectorAll('.poster-inner').forEach(function(inner) {
+            // 當前總內容高度
+            const needed = window.innerHeight * 2;
+            // 如果 scrollHeight 太小，就重複把內容 append 下去
+            while (inner.scrollHeight < needed) {
+              inner.innerHTML += inner.innerHTML;
+            }
+          });
+        });
+        // 若希望在 resize 時也自動補強，可再加上以下：
+        window.addEventListener('resize', function () {
+          document.querySelectorAll('.poster-inner').forEach(function(inner) {
+            const needed = window.innerHeight * 2;
+            while (inner.scrollHeight < needed) {
+              inner.innerHTML += inner.innerHTML;
+            }
+          });
+        });
+    </script>
+</body>
+</html>
+

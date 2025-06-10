@@ -9,7 +9,7 @@ public partial class Staff
 
     public string StaffName { get; set; } = null!;
 
-    public int StaffPhone { get; set; }
+    public string? StaffPhone { get; set; }
 
     public string StaffEmail { get; set; } = null!;
 
