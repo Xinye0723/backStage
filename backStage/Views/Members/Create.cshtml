@@ -3,14 +3,22 @@
 @{
     ViewData["Title"] = "Create";
 }
+<style>
+    .scrollable-container {
+        height: 500px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+    }
+    
+</style>
 
-<h1>Create</h1>
+<h1>新增</h1>
 
-<h4>Member</h4>
+<h4>會員</h4>
 <hr />
-<div class="row">
+<div class="row scrollable-container">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data" >
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="MemberId" class="control-label"></label>
@@ -48,24 +56,27 @@
                 <span asp-validation-for="MemberIntroSelf" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="MemberImg" class="control-label"></label>
-                <input asp-for="MemberImg" class="form-control" />
-                <span asp-validation-for="MemberImg" class="text-danger"></span>
+                <label asp-for="MemberImgUpload" class="control-label"></label>
+                <input asp-for="MemberImgUpload" class="form-control" type="file" />
+                <span asp-validation-for="MemberImgUpload" class="text-danger"></span>
             </div>
+            <!-- 其他欄位 -->
+            @* <button type="submit" class="btn btn-primary">新增</button> *@
+
             <div class="form-group">
                 <label asp-for="MemberPermission" class="control-label"></label>
                 <input asp-for="MemberPermission" class="form-control" />
                 <span asp-validation-for="MemberPermission" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="新增" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">上一頁</a>
 </div>
 
 @section Scripts {

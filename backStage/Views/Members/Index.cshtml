@@ -4,19 +4,19 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>會員管理</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">新增</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.MemberName)
+                @Html.DisplayNameFor(model => model.MemberImg)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MemberPassword)
+                @Html.DisplayNameFor(model => model.MemberName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.MemberGender)
@@ -27,49 +27,32 @@
             <th>
                 @Html.DisplayNameFor(model => model.MemberEmail)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MemberIntroSelf)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MemberImg)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MemberPermission)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+                <td>
+                    <img src="@item.MemberImg" alt="會員圖片" class="img-thumbnail" width="100" />
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MemberName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.MemberPassword)
+                @Html.DisplayFor(modelItem => item.MemberGenderDisplay)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.MemberGender)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MemberBirthDate)
+                @Html.DisplayFor(modelItem => item.MemberBirthDateDisplay)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MemberEmail)
             </td>
+
             <td>
-                @Html.DisplayFor(modelItem => item.MemberIntroSelf)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MemberImg)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MemberPermission)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MemberId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MemberId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MemberId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.MemberId">編輯</a> |
+                <a asp-action="Details" asp-route-id="@item.MemberId">細項</a> |
+                <a asp-action="Delete" asp-route-id="@item.MemberId">刪除</a>
             </td>
         </tr>
 }

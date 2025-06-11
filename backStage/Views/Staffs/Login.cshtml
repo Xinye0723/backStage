@@ -105,7 +105,8 @@
         <div class="login-card">
             <p class="chocolate-classical-sans-regular">後台系統登入<p />
 
-            <form asp-action="Login" asp-controller="Account" method="post">
+            <form asp-action="Login" asp-controller="Staffs" method="post">
+                @Html.AntiForgeryToken()
                 <input type="text"
                        class="login-input"
                        id="username"
