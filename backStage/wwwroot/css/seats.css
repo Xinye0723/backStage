@@ -1,7 +1,8 @@
-﻿seats.css
-/* =============  1. 右側欄位願意收縮  ============= */
+﻿/* =============  1. 右側欄位願意收縮  ============= */
 /*   在 Razor 加一個 class="seat-col"，或直接選擇你那段欄位 */
-.seat-col {
+.seat-col,
+.seat-col .card,
+.seat-col .card-body {
     min-width: 0;
 }
 /* ✨ 關鍵：允許被壓縮 */
@@ -38,14 +39,16 @@
     width: 100%; /* 佔滿卡片寬度 */
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
     padding-bottom: 4px; /* 給 overlay scrollbar 空間 */
     display: flex;
     justify-content: center;
 }
 
 .row-container {
-    width: max-content; /* 依內容撐開，但在 seats-wrapper 裡橫向捲 */
-    margin-top: 30px;
+    width: max-content; /* 讓寬度跟內容一樣寬 */
+    margin: 0 !important; /* ← 把 -0.75rem 之類負邊距清掉 */
+    padding: 0 !important; /* 不要再墊 15px, 24px … */
 }
 
 /* =============  4. 每一排座位  ============= */
@@ -64,8 +67,17 @@
     background: gray; /* 空位 */
     border: 2px solid gray;
     transition: .2s;
+    cursor: pointer;
 }
 
+    .seat.occupied {
+        background: #dc3545;
+    }
+    /* 已售 */
+    .seat.maintenance {
+        background: #ffc107;
+    }
+    /* 維修 */
     .seat.selected {
         background: #01163e;
     }
@@ -91,18 +103,25 @@
 /* =============  6. 手機尺寸微縮  ============= */
 @media(max-width:576px) {
     .seat {
-        width: 25px;
-        height: 21px;
+        width: 24px;
+        height: 20px;
+        margin: 3px; /* 原本 5 */
+        border-width: 1px;
+        border-radius: 6px 6px 0 0;
     }
-        /* 座位縮小 */
-        /* 走道也跟著縮，避免佔滿整寬 */
-        .seat:nth-of-type(4) {
-            margin-right: 30px;
-        }
 
-        .seat:nth-last-of-type(4) {
-            margin-left: 30px;
-        }
+    .movie-screen img {
+        max-width: 90%;
+    }
+    /* 座位縮小 */
+    /* 走道也跟著縮，避免佔滿整寬 */
+    .seat:nth-of-type(4) {
+        margin-right: 30px;
+    }
+
+    .seat:nth-last-of-type(4) {
+        margin-left: 30px;
+    }
 }
 
 @media (max-width: 767.98px) {

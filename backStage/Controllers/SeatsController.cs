@@ -34,12 +34,12 @@ namespace backStage.Controllers
             })
             .ToListAsync();
 
-            return Json(data);                         // 給前端 JS
+            return Json(data);// 給前端 JS
         }
 
         // GET: Seats
 
-        public async Task<IActionResult> Index(int? theaterNumber /* ← 供搜尋 */)
+        public async Task<IActionResult> Index(int theaterNumber = 1)
         {
             // ① 取得所有影廳號（distinct + 排序）
             var halls = await _context.Seats
@@ -48,15 +48,15 @@ namespace backStage.Controllers
                          .OrderBy(n => n)
                          .ToListAsync();
 
-            ViewBag.HallList = halls;            // 傳給 <select>
+            // 2. 指定影廳的座位
+            var seats = _context.Seats
+                                .Where(s => s.TheaterNumber == theaterNumber)
+                                .ToList();
 
-            // ② 如果帶了 theaterNumber，就只撈那個廳的座位
-            var seatsQuery = _context.Seats.AsQueryable();
-            if (theaterNumber.HasValue)
-                seatsQuery = seatsQuery.Where(s => s.TheaterNumber == theaterNumber);
+            ViewBag.HallList = halls;
+            ViewBag.SelectedHall = theaterNumber;   // ← 給 View 判斷哪個 option 要 selected
 
-            var seats = await seatsQuery.ToListAsync();
-            return View(seats);                  // 原本 Scaffold 的 model = List<Seat>
+            return View(seats);
         }
 
         // GET: Seats/Details/5

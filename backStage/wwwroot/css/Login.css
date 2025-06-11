@@ -1,141 +1,112 @@
-﻿body, html {
+﻿/* ========== 1. 全域重置 ========== */
+html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
 }
 
-/* ------------------------------
-   2. 背景主容器：水平切分成 8 欄
-------------------------------- */
+/* ========== 2. 背景海報瀑布流 ========== */
 .poster-bg {
-    position: fixed; /* 固定為背景 */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: flex; /* flex 分 8 欄 */
-    z-index: -1; /* 放最底層 */
-    background-color: #000; /* 海報載完前的黑底 */
+    display: flex;
+    z-index: -1;
+    background: #000;
 }
 
-/* --------- 每欄基本樣式 ---------- */
 .poster-col {
-    flex: 1; /* 8 欄等寬 */
-    overflow: hidden; /* 遮掉滾出範圍的部分 */
-    position: relative; /* 方便內層 absolute */
-    opacity: 0.4;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    opacity: .4
 }
 
-    /* ---------------------------------
-   3. 欄內向上滾動 container
-   animation 動畫時間相同
----------------------------------- */
-    .poster-col .poster-inner {
-        position: absolute;
-        top: 0;
-        left: 0;
+.poster-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    animation: scrollUp 60s linear infinite;
+}
+
+    .poster-inner img {
+        display: block;
         width: 100%;
-        animation: scrollUp 60s linear infinite;
+        margin-bottom: 8px;
+        border-radius: 4px
     }
 
-        /* --------- 欄內圖片樣式 --------- */
-        .poster-col .poster-inner img {
-            display: block;
-            width: 100%;
-            margin-bottom: 8px; /* 圖片間距 */
-            border-radius: 4px; /* 圓角 */
-        }
-
-/* ---------------------------------
-   4. 滾動動畫：整個 poster-inner 往上移 50% (自身高度)，
-   0%→100% 直接線性移動，無擱置，確保真正無限循環
----------------------------------- */
+/* 2-1 滾動動畫 */
 @keyframes scrollUp {
     0% {
-        transform: translateY(0);
+        transform: translateY(0)
     }
 
     100% {
-        transform: translateY(-50%);
+        transform: translateY(-50%)
     }
 }
 
-/* ---------------------------------
-   5. 讓每一欄開頭都比第一欄「更往上錯落」
-   直接對 .colX .poster-inner 用 margin-top 負向上偏移
----------------------------------- */
+/* 2-2 起始位移錯落（8 欄） */
 .col1 .poster-inner {
-    margin-top: 80px;
+    margin-top: 80px
 }
 
 .col2 .poster-inner {
-    margin-top: -80px;
+    margin-top: -80px
 }
 
 .col3 .poster-inner {
-    margin-top: 0px;
+    margin-top: 0px
 }
 
 .col4 .poster-inner {
-    margin-top: -20px;
+    margin-top: -20px
 }
 
 .col5 .poster-inner {
-    margin-top: -60px;
+    margin-top: -60px
 }
 
 .col6 .poster-inner {
-    margin-top: 0px;
+    margin-top: 0px
 }
 
 .col7 .poster-inner {
-    margin-top: -80px;
+    margin-top: -80px
 }
 
 .col8 .poster-inner {
-    margin-top: 0px;
+    margin-top: 0px
 }
 
-/* ---------------------------------
-   6. 登入卡片樣式 (維持之前設定)
----------------------------------- */
+/* ========== 3. 登入區塊 ========== */
 .login-container {
     display: flex;
-    flex-direction: column; /* 讓子元素上下排列 */
-    align-items: center; /* 置中（左右） */
-    justify-content: center; /* 置中（上下） */
-    min-height: 100vh; /* 全螢幕置中 */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
     position: relative;
     z-index: 1;
 }
 
 .login-card {
     width: 340px;
-    background: rgba(0, 0, 0,0.7);
-    padding: 3rem;
-    padding-top: 20px;
+    padding: 20px 3rem 3rem;
+    background: rgba(0,0,0,.7);
     border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
 }
 
-    .login-card h3 {
-        margin-bottom: 2rem;
-        font-weight: bold;
-        text-align: center;
-        font-size: 1.5rem;
-    }
-
-.text-error {
-    color: #E50914;
-    font-size: 1.3rem;
-    margin-top: 0.8rem;
-    text-align: center;
-}
-
+/* 介面元件 */
 .login-input {
     width: 100%;
-    padding: 0.6rem 0.8rem;
+    padding: .6rem .8rem;
     margin-bottom: 1rem;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -146,112 +117,148 @@
     .login-input:focus {
         outline: none;
         border-color: #888;
-        box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 4px rgba(0,0,0,.1)
     }
 
 .login-button {
     width: 100%;
-    padding: 0.7rem;
-    background-color: #E50914; /* Netflix 紅 */
-    border: none;
+    padding: .7rem;
+    background: #E50914;
+    border: 0;
     border-radius: 4px;
     font-size: 1rem;
     color: #fff;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: .2s;
 }
 
     .login-button:hover {
-        background-color: #B20710; /* 深紅 Hover */
+        background: #B20710
     }
 
-/* ---------------------------------
-   7. 響應式：手機螢幕時，把卡片縮到 90%
----------------------------------- */
-@media (max-width: 576px) {
-    .login-card {
-        width: 90%;
-        padding: 1.5rem;
-    }
-
-        .login-card h3 {
-            font-size: 1.3rem;
-        }
+.text-error {
+    color: #E50914;
+    font-size: 1.3rem;
+    margin-top: .8rem;
+    text-align: center
 }
 
-@-webkit-keyframes focus-in-contract-bck {
+.choco-regular {
+    font-family: "Chocolate Classical Sans",sans-serif;
+    color: #fff;
+    font-size: 15px;
+    text-align: center
+}
+
+/* ========== 4. 標題動畫 ========== */
+@keyframes focusIn {
     0% {
-        letter-spacing: 1em;
-        -webkit-transform: translateZ(300px);
-        transform: translateZ(300px);
-        -webkit-filter: blur(12px);
+        transform: perspective(1000px) translateZ(300px) scale(.8);
         filter: blur(12px);
-        opacity: 0;
+        opacity: 0
     }
 
     100% {
-        -webkit-transform: translateZ(12px);
-        transform: translateZ(12px);
-        -webkit-filter: blur(0);
+        transform: perspective(1000px) translateZ(0) scale(1);
         filter: blur(0);
-        opacity: 1;
-    }
-}
-
-@keyframes focus-in-contract-bck {
-    0% {
-        letter-spacing: 1em;
-        -webkit-transform: translateZ(300px);
-        transform: translateZ(300px);
-        -webkit-filter: blur(12px);
-        filter: blur(12px);
-        opacity: 0;
-    }
-
-    100% {
-        -webkit-transform: translateZ(12px);
-        transform: translateZ(12px);
-        -webkit-filter: blur(0);
-        filter: blur(0);
-        opacity: 1;
+        opacity: 1
     }
 }
 
 .focus-in-contract-bck {
-    -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-    animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-    font-size: 5rem;
-    letter-spacing: 0.3em;
-    text-align: center;
+    font-family: "Train One",system-ui;
+    animation: focusIn 2s cubic-bezier(.25,.46,.45,.94) both;
+    display: inline-block;
+    line-height: 1.1;
+    white-space: nowrap;
+    letter-spacing: .3em;
+    color: #fff;
+    /* 320 px → 1920 px 之間，自動從 2.2 rem 漸進到 6 rem */
 }
-/* 平板以下 (≤992px) */
-@media (max-width: 992px) {
+
+/* 480 px 以下：允許折行（如果還是塞不下就自動換行）*/
+@media(max-width:480px) {
     .focus-in-contract-bck {
-        -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-        animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-        font-size: 3.5rem;
-        letter-spacing: 0.25em;
-        text-align: center;
+        white-space: normal
+    }
+}
+/* 1️⃣ 768px 以下：就准許換行 & 縮小字距 ------------------ */
+@media(max-width:768px) {
+    .focus-in-contract-bck {
+        white-space: normal; /* 允許自動折行（空白處）   */
+        letter-spacing: .18em; /* 把字距從 .3em 壓到 .18em */
+        overflow-wrap: break-word;
+        max-width: 100%; /* 不讓字盒超過畫面         */
     }
 }
 
-/* 手機以下 (≤576px) */
-@media (max-width: 576px) {
+/* 2️⃣ 480px 以下：再縮一次字距，字體也更小 -------------- */
+@media(max-width:480px) {
     .focus-in-contract-bck {
-        -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-        animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-        font-size: 2.5rem;
-        letter-spacing: 0.15em;
-        text-align: center;
+        letter-spacing: .08em; /* 再縮字距，避免擠爆      */
+    }
+}
+/* --------- 標題共用基底 --------- */
+.focus-in-contract-bck {
+    font-family: "Train One", system-ui;
+    animation: focusIn 2s cubic-bezier(.25,.46,.45,.94) both;
+    text-align: center; /* 內容左右置中 */
+    margin-bottom: 30px; /* 清掉 h1 預設外距 */
+    color: #fff;
+}
+
+/* >=1200px：桌機大螢幕 ── 單行、最大字 */
+@media (min-width:1200px) {
+    .focus-in-contract-bck {
+        font-size: 6rem;
+        letter-spacing: .30em;
+        white-space: nowrap;
+        display: inline-block;
     }
 }
 
-@media (max-width: 375px) {
+/* 1199px~993px：一般筆電寬度 ── 單行、略縮 */
+@media (max-width:1199px) {
     .focus-in-contract-bck {
-        -webkit-animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-        animation: focus-in-contract-bck 3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-        font-size: 2.5rem;
-        letter-spacing: 0.1em;
-        text-align: center;
+        font-size: 5rem;
+        letter-spacing: .25em;
+        white-space: nowrap;
+        display: inline-block;
+    }
+}
+
+/* 992px~769px：平板直立或小筆電 ── 準備可折行 */
+@media (max-width:992px) {
+    .focus-in-contract-bck {
+        font-size: 4rem;
+        letter-spacing: .18em;
+        white-space: normal; /* 允許換行 */
+        display: block; /* 滿版＋text-align:center → 每行都置中 */
+        max-width: 100%;
+        overflow-wrap: break-word;
+    }
+}
+
+/* 768px~577px：大手機 / 小平板 */
+@media (max-width:768px) {
+    .focus-in-contract-bck {
+        font-size: 3rem;
+        letter-spacing: .12em;
+    }
+}
+
+/* ≤576px：手機 ── 再縮一次字距與字級 */
+@media (max-width:576px) {
+    .focus-in-contract-bck {
+        font-size: 2.4rem;
+        letter-spacing: .08em;
+    }
+}
+
+/* ≤375px：極小裝置  */
+@media (max-width:375px) {
+    .focus-in-contract-bck {
+        font-size: 2rem;
+        letter-spacing: .05em;
     }
 }

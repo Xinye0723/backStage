@@ -1,24 +1,99 @@
 ﻿@model List<backStage.Models.Seat>
 @{
     Layout = "_Layout";
-
-
+    // key: "row-col" → seat
+    var seatMap = Model.ToDictionary(
+     s => $"{s.SeatRow[0] - 'A' + 1}-{int.Parse(s.SeatNumber)}"  // A→1, B→2...
+ );
     int rowCount = 15;   
     int seatsPerRow = 25;  
     var halls = ViewBag.HallList as List<int>;
 }
 @section Styles {
     <style>
-        .full-height {
-            height: calc(100vh - 6rem);
+        /* ---------- 右側整塊拿掉 padding，並允許被壓縮 ---------- */
+        .seat-col,
+        .seat-col > .card,
+        .seat-col > .card > .card-body {
+            padding: 0 !important;
+            margin: 0 !important;
+            min-width: 0;
         }
 
-        @@media (max-width: 767.98px) { /* Bootstrap 的 md 斷點 - 0.02 */
-            .full-height {
-                height: auto !important;
-            }
+        .seats-wrapper {
+            display: inline-block; /* 讓整塊內容一次排完 */
+            width: max-content; /* 寬度隨內容決定 (>視窗就產生橫捲) */
+            min-width: 100%; /* 但最小還是要跟視窗一樣寬，避免左邊被吃掉 */
         }
-        
+            /* card-body 本身就能橫向捲動 */
+            .seat-col > .card > .card-body {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-x: contain;
+            }
+
+        /* ---------- 內容容器：只負責包座位，寬度隨內容 ---------- */
+        .seat-grid {
+            display: inline-block; /* block 也行，inline-block 更保險 */
+            width: max-content;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 一排座位橫向排開 */
+        .seat-row {
+            display: flex;
+            margin-bottom: 6px;
+        }
+
+        /* ---------- 單顆座位 ---------- */
+        .seat {
+            width: 35px;
+            height: 30px;
+            margin: 5px;
+            border: 2px solid gray;
+            border-radius: 10px 10px 0 0;
+            background: gray;
+            cursor: pointer;
+            transition: .2s;
+            flex: 0 0 35px; /* 不縮不放大，固定 35 寬 */
+            box-sizing: border-box;
+            aspect-ratio: 7/6; /* 寬高比固定 */
+        }
+        @@media(max - width:576px) {
+            .seat
+
+        {
+            width: 24px;
+            height: 20px;
+            margin: 3px;
+            border-width: 1px;
+            border-radius: 6px 6px 0 0;
+            flex: 0 0 24px; /* 同步改寬 */
+            aspect-ratio: 6/5; /* 或寫 7/6 也行 */
+        }
+
+        }
+        /* 狀態色 */
+        .seat.maintenance {
+            background: red;
+        }
+
+        .seat.selected {
+            background: #01163e;
+        }
+
+        .seat.occupied {
+            background: #ffc107;
+        }
+
+        /* 一排座位保持交叉軸不拉伸 */
+        .seat-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
     </style>
 }
 <!-- ▽▽ 頁面本體 ▽▽ -->
@@ -40,64 +115,46 @@
                     <div>
                         <label class="form-label">影廳名稱</label>
                         <select id="hallSelect" class="form-select">
-                            <option value="">請選擇影廳</option>
-                            @foreach (var h in halls)
-                            {
-                                <option value="@h">@h</option>
-                            }
+                        <option value="">請選擇影廳</option>
+                        @foreach (var h in ViewBag.HallList as List<int>)
+                        {
+                            <option value="@h"
+                            selected="@((h == (int)ViewBag.SelectedHall) ? "selected" : null)">@h
+                            </option>
+                        }
                         </select>
                     </div>
-                    @* <form asp-action="Index" asp-controller="Seats" method="get"
-                          class="d-flex flex-column gap-3 flex-grow-1">
-                        <div>
-                            <label class="form-label">影廳名稱</label>
-                            <select id="hallSelect" name="theaterNumber" class="form-select">
-                                <option value="">請選擇影廳</option>
-                                @foreach (var h in halls)
-                                {
-                                    <option value="@h">@h</option>
-                                }
-                            </select>
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-outline-primary w-100">
-                            搜尋影廳
-                        </button>
-                    </form> *@
-
                 </div>
             </div>
         </div>
 
         <!-- 右側座位表 -->
+        <!-- 右側座位表 -->
         <div class="col-12 col-md-9 col-lg-10 d-flex flex-column h-md-100 seat-col">
             <div class="card flex-fill">
-                <div class="card-header">座位表</div>
-                <div class="card-body p-0 d-flex flex-column">
+                <div class="card-header py-2">座位表</div>
 
-                    <!-- 座位區（可水平捲動） -->
+                <!-- ✨ NEW：把可捲動的內容再包一層 seats-wrapper -->
+                <div class="card-body p-0 overflow-auto">
                     <div class="seats-wrapper">
-                        <div class="row-container">
-
-                            <!-- 螢幕示意圖 -->
-                            <div class="movie-screen">
-                                <img src="~/images/img/screen-thumb.png" alt="screen" />
-                            </div>
-
-                            <!-- 座位動態產生 -->
-                            @for (int r = 0; r < rowCount; r++)
-                            {
-                                <div class="seat-row">
-                                    @for (int c = 0; c < seatsPerRow; c++)
-                                    {
-                                        <div class="seat"></div>
-                                    }
-                                </div>
-                            }
-                            
-
+                        <div class="movie-screen mb-3">
+                            <img src="~/images/img/screen-thumb.png" alt="screen" />
                         </div>
+
+                        @for (int r = 1; r <= rowCount; r++)
+                        {
+                            <div class="seat-row">
+                                @for (int c = 1; c <= seatsPerRow; c++)
+                                {
+                                    seatMap.TryGetValue($"{r}-{c}", out var seat);
+                                    var cls = seat == null ? "seat"
+                                    : seat.Status == "已售出" ? "seat occupied"
+                                    : seat.Status == "維修中" ? "seat maintenance"
+                                    : "seat";
+                                    <div class="@cls" data-row="@r" data-col="@c"></div>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -109,7 +166,16 @@
 <!-- ▽▽ 點選變色腳本 ▽▽ -->
 @section Scripts {
     <script>
-        const seatWrapper  = document.querySelector('.seats-wrapper');
+        // 只要換影廳，就直接 GET /Seats/Index?theaterNumber=xx
+        document.getElementById('hallSelect')
+                .addEventListener('change', e => {
+            const val = e.target.value.trim();
+            if (val) location.href = @Url.Action("Index", "Seats")?theaterNumber=${val};
+        });
+    </script>
+
+    <script>
+        const seatWrapper = document.querySelector('.seats-wrapper');
         seatWrapper.addEventListener('click', e=>{
             if(!e.target.classList.contains('seat') ||
                e.target.classList.contains('occupied')) return;
@@ -127,7 +193,7 @@
                 const val = hallSelect.value.trim();        // 去掉空白
                 if (val) {
                     deleteBtn.classList.remove('disabled');
-                    deleteBtn.href = `${baseUrl}?theaterNumber=${val}`;
+                    deleteBtn.href = ${baseUrl}?theaterNumber=${val};
                 } else {
                     deleteBtn.classList.add('disabled');
                     deleteBtn.href = "#";
@@ -140,7 +206,4 @@
             // ③ 首頁載入時就判斷一次（避免回傳搜尋後仍顯示 disabled）
             updateBtn();
         });
-    </script>
-}
-
-
+    </script>}
