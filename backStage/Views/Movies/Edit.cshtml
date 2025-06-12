@@ -1,0 +1,129 @@
+﻿@model backStage.Models.Movie
+
+@{
+    ViewData["Title"] = "電影編輯";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4></h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MovieId" />
+            <div class="form-group">
+                <label asp-for="PosterPicture" class="control-label"></label>
+                <input asp-for="PosterPicture" class="form-control" />
+                <span asp-validation-for="PosterPicture" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieNameChinese" class="control-label"></label>
+                <input asp-for="MovieNameChinese" class="form-control" />
+                <span asp-validation-for="MovieNameChinese" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieNameEnglish" class="control-label"></label>
+                <input asp-for="MovieNameEnglish" class="form-control" />
+                <span asp-validation-for="MovieNameEnglish" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieRatingId" class="control-label"></label>
+                <select asp-for="MovieRatingId" class="form-control" asp-items="ViewBag.MovieRatingId"></select>
+                <span asp-validation-for="MovieRatingId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Duration" class="control-label"></label>
+                <div class="input-group">
+                    <input asp-for="Duration" class="form-control" type="number" min="0" max="300" />
+                    <span class="input-group-text">分鐘</span>
+                </div>
+                <span asp-validation-for="Duration" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReleaseDate" class="control-label"></label>
+                <input asp-for="ReleaseDate" type="date" class="form-control" />
+                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label"></label>
+                <input asp-for="EndDate" type="date" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsReleased" /> @Html.DisplayNameFor(model => model.IsReleased)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsUpcoming" /> @Html.DisplayNameFor(model => model.IsUpcoming)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsNowShowing" /> @Html.DisplayNameFor(model => model.IsNowShowing)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsEnded" /> @Html.DisplayNameFor(model => model.IsEnded)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="Director" class="control-label"></label>
+                <input asp-for="Director" class="form-control" />
+                <span asp-validation-for="Director" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Starring" class="control-label"></label>
+                <input asp-for="Starring" class="form-control" />
+                <span asp-validation-for="Starring" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Production" class="control-label"></label>
+                <input asp-for="Production" class="form-control" />
+                <span asp-validation-for="Production" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Distributor" class="control-label"></label>
+                <input asp-for="Distributor" class="form-control" />
+                <span asp-validation-for="Distributor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Country" class="control-label"></label>
+                <input asp-for="Country" class="form-control" />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Plot" class="control-label"></label>
+                <input asp-for="Plot" class="form-control" />
+                <span asp-validation-for="Plot" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TrailerUrl" class="control-label"></label>
+                <input asp-for="TrailerUrl" class="form-control" />
+                <span asp-validation-for="TrailerUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ViewCount" class="control-label"></label>
+                <input asp-for="ViewCount" class="form-control" />
+                <span asp-validation-for="ViewCount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoxOffice" class="control-label"></label>
+                <input asp-for="BoxOffice" class="form-control" type="number" min="0" />
+                <span asp-validation-for="BoxOffice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> 儲存</button> |
+                <a asp-action="Index" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
