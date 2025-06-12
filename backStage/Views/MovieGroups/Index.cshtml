@@ -1,0 +1,78 @@
+﻿@model IEnumerable<backStage.Models.MovieGroup>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>活動列表</h1>
+
+<p>
+    <a asp-action="Create">新增活動</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MovieId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShowTimeId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroupName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaderMemberId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaxMembers)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GroupNote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ShowTimeId)
+            </td>
+            <td>
+                
+               @Html.DisplayFor(modelItem => item.GroupName) 
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LeaderMemberId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MaxMembers)
+            </td>
+            <td>
+                    <img src="@item.GroupNote" alt="活動圖片" width="100" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateTime)
+            </td>
+            <td>
+                    @Html.DisplayFor(modelItem => item.Status)    
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.GroupId">編輯</a> |
+                <a asp-action="Details" asp-route-id="@item.GroupId">活動細節</a> |
+                <a asp-action="Delete" asp-route-id="@item.GroupId">刪除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
