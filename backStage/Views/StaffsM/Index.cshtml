@@ -1,0 +1,58 @@
+﻿@model IEnumerable<backStage.Models.Staff>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>員工管理</h1>
+
+<p>
+    <a asp-action="Create">新增</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.StaffName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StaffPhone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StaffEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StaffPermission)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StaffPassword)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.StaffName)
+            </td>
+                <td>@string.Format("0{0}", item.StaffPhone)</td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.StaffEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StaffPermission)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StaffPassword)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.StaffId">編輯</a> |
+                <a asp-action="Details" asp-route-id="@item.StaffId">選取</a> |
+                <a asp-action="Delete" asp-route-id="@item.StaffId">刪除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

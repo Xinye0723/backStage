@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backStage.Controllers
 {
@@ -16,6 +18,8 @@ namespace backStage.Controllers
         [HttpPost]
         public IActionResult Login(string username, string password)
         {
+
+
             // todo-->去資料庫檢查帳密
             bool isValid = (username == "admin" && password == "1234");
 
@@ -31,5 +35,11 @@ namespace backStage.Controllers
                 return View();
             }
         }
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
+
     }
 }

@@ -1,0 +1,54 @@
+﻿@model IEnumerable<backStage.Models.Member>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>會員管理</h1>
+
+<p>
+    <a asp-action="Create">新增</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberGender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberBirthDate)        
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberEmail)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberGenderDisplay)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberBirthDateDisplay)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberEmail)
+            </td>
+
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MemberId">編輯</a> |
+                <a asp-action="Details" asp-route-id="@item.MemberId">細項</a> |
+                <a asp-action="Delete" asp-route-id="@item.MemberId">刪除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
