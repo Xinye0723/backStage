@@ -1,0 +1,73 @@
+﻿@model backStage.Models.MovieGroup
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>新增活動</h1>
+
+<h4>活動資訊</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="GroupId" class="control-label"></label>
+                <input asp-for="GroupId" class="form-control" />
+                <span asp-validation-for="GroupId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieId" class="control-label"></label>
+                <input asp-for="MovieId" class="form-control" />
+                <span asp-validation-for="MovieId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShowTimeId" class="control-label"></label>
+                <input asp-for="ShowTimeId" class="form-control" />
+                <span asp-validation-for="ShowTimeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GroupName" class="control-label"></label>
+                <input asp-for="GroupName" class="form-control" />
+                <span asp-validation-for="GroupName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LeaderMemberId" class="control-label"></label>
+                <input asp-for="LeaderMemberId" class="form-control" />
+                <span asp-validation-for="LeaderMemberId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxMembers" class="control-label"></label>
+                <input asp-for="MaxMembers" class="form-control" />
+                <span asp-validation-for="MaxMembers" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GroupNote" class="control-label"></label>
+                <input asp-for="GroupNote" class="form-control" />
+                <span asp-validation-for="GroupNote" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+            <label for="ImageFile">活動圖片</label>
+            <input type="file" name="ImageFile" id="ImageFile" class="form-control" />
+            </div>
+            <!-- 其他輸入欄位（可以先不用顯示 Status 這個欄位，因為我們自動設定圖片路徑） -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">新增</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">回首頁</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

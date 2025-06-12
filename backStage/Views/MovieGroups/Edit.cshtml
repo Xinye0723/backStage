@@ -1,0 +1,69 @@
+﻿@model backStage.Models.MovieGroup
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>編輯頁面</h1>
+
+<h4>活動資訊</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="GroupId" />
+            <div class="form-group">
+                <label asp-for="MovieId" class="control-label"></label>
+                <input asp-for="MovieId" class="form-control" />
+                <span asp-validation-for="MovieId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShowTimeId" class="control-label"></label>
+                <input asp-for="ShowTimeId" class="form-control" />
+                <span asp-validation-for="ShowTimeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GroupName" class="control-label"></label>
+                <input asp-for="GroupName" class="form-control" />
+                <span asp-validation-for="GroupName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LeaderMemberId" class="control-label"></label>
+                <input asp-for="LeaderMemberId" class="form-control" />
+                <span asp-validation-for="LeaderMemberId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxMembers" class="control-label"></label>
+                <input asp-for="MaxMembers" class="form-control" />
+                <span asp-validation-for="MaxMembers" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GroupNote" class="control-label"></label>
+                <input asp-for="GroupNote" class="form-control" />
+                <span asp-validation-for="GroupNote" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreateTime" class="control-label"></label>
+                <input asp-for="CreateTime" class="form-control" />
+                <span asp-validation-for="CreateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="儲存" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">回首頁</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
