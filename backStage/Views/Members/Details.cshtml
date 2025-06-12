@@ -4,10 +4,10 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>細項</h1>
 
 <div>
-    <h4>Member</h4>
+    <h4>會員</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -50,7 +50,7 @@
             @Html.DisplayNameFor(model => model.MemberImg)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MemberImg)
+            <img src="~/@Model.MemberImg" alt="會員圖片" width="120" class="img-thumbnail" />
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.MemberPermission)
@@ -61,6 +61,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.MemberId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.MemberId">編輯</a> |
+    <a asp-action="Index">上一頁</a>
 </div>

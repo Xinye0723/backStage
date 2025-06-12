@@ -55,10 +55,25 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MemberId,MemberName,MemberPassword,MemberGender,MemberBirthDate,MemberEmail,MemberIntroSelf,MemberImg,MemberPermission")] Member member)
+        public async Task<IActionResult> Create([Bind("MemberId,MemberName,MemberPassword,MemberGender,MemberBirthDate,MemberEmail,MemberIntroSelf,MemberPermission")] Member member, IFormFile MemberImgUpload)
         {
             if (ModelState.IsValid)
             {
+                if (MemberImgUpload != null)
+                {
+                    // 處理圖片上傳
+                    var fileName = Path.GetFileName(MemberImgUpload.FileName);
+                    var filePath = Path.Combine("wwwroot/uploads", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await MemberImgUpload.CopyToAsync(stream);
+                    }
+
+                    // 存入資料庫的圖片路徑
+                    member.MemberImg = "/images/img/memberimg/" + fileName;
+                }
+
                 _context.Add(member);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
