@@ -4,9 +4,9 @@
     var total = ViewBag.Total ?? 0;
 }
 
-<h1 class="text-danger">確定刪除影廳 @Model？</h1>
+<h1 class="text-danger my-3">確定刪除 @Model 號影廳</h1>
 <p class="lead">
-    此操作將一次移除 <strong>@total</strong> 筆座位資料，且無法復原！
+    將一次移除 @Model 號影廳所有座位，且無法復原！
 </p>
 
 <form asp-action="DeleteHall"

@@ -4,7 +4,8 @@ namespace backStage.viewModels
 {
     public class SeatBatchVM
     {
-        [Required]
+
+        [Required(ErrorMessage = "影廳號碼不可空白")]
         public int TheaterNumber { get; set; }
 
         // 預設 15 排 25 座，不想讓使用者改可移除
