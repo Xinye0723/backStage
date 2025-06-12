@@ -1,0 +1,114 @@
+﻿@model IEnumerable<backStage.Models.ShowTime>
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+@{
+    ViewData["Title"] = "Index";
+
+    /* ------------------------------
+       從 Controller 傳進來的資料：
+         ViewBag.HallList → List<int>  影廳編號 (例如 1,2,3)
+         Model            → 今日所有 ShowTime 資料
+       ------------------------------ */
+
+    var halls = ViewBag.HallList as List<int> ?? new List<int>();
+
+    // DayPilot 資源（影廳）→ JS 陣列字串
+    var resourcesObj = halls.Select(h => new { name = $"影廳 {h}", id = $"R{h}" });
+    string resourcesJson = JsonSerializer.Serialize(resourcesObj, new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    });
+
+    // DayPilot 事件（場次）→ JS 陣列字串
+    // var eventsObj = Model.Select(st => new
+    // {
+    //     id = st.ShowTimeId,
+    //     start = st.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
+    //     end = st.EndTime.ToString("yyyy-MM-ddTHH:mm:ss"),
+    //     text = st.MovieTitle,
+    //     resource = $"R{st.TheaterNumber}"
+    // });
+    // string eventsJson = JsonSerializer.Serialize(eventsObj, new JsonSerializerOptions
+    // {
+    //     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    // });
+}
+
+@section Styles {
+    <style>
+        /* ========= 全域字體 ========= */
+        p, body, td, input, select, button {
+            font-family: -apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+            font-size: 14px;
+        }
+
+        /* ========= 背景 ========= */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+
+        .main {
+            padding: 10px;
+        }
+    </style>
+}
+
+<div class="main">
+    <div id="dp"></div>
+</div>
+
+@section Scripts {
+    <script>
+        /*************************************************
+         * DayPilot Scheduler 主設定
+         *************************************************/
+        const dp = new DayPilot.Scheduler("dp", {
+          locale: "zh-tw",
+          cellWidthSpec: "Fixed",
+          cellWidth: 50,
+          cellDuration: 15,
+          scale: "CellDuration",
+          days: 1,
+          startDate: DayPilot.Date.today(),
+          timeHeaders: [
+            { groupBy:"Day",  format:"dddd, d MMMM yyyy" },
+            { groupBy:"Hour" },
+            { groupBy:"Cell", format:"mm" }
+          ],
+          eventHeight: 50,
+          businessWeekends: true,
+          timeRangeSelectedHandling: "Enabled",
+          onTimeRangeSelected: async (args) => {
+            const m = await DayPilot.Modal.prompt("建立新場次：", "片名");
+            dp.clearSelection();
+            if (m.canceled) return;
+            dp.events.add({ id: DayPilot.guid(), start: args.start, end: args.end, resource: args.resource, text: m.result });
+          },
+          eventMoveHandling: "Update",
+          eventResizeHandling: "Update",
+          eventDeleteHandling: "Update",
+          onEventMoved:   a => console.log("moved",   a.e.data),
+          onEventResized: a => console.log("resized", a.e.data),
+          onEventDeleted: a => console.log("deleted", a.e.data),
+          eventRightClickHandling: "ContextMenu",
+          contextMenu: new DayPilot.Menu({ items:[{ text:"刪除", onClick:a=>dp.events.remove(a.source) }] })
+        });
+
+        dp.init();
+
+        /*************************************************
+         * 由 Razor 注入後端資料（轉成 JS 陣列）
+         *************************************************/
+        try {
+          const resources = JSON.parse('@Html.Raw(JsonSerializer.Serialize(resourcesJson))');
+          
+
+          dp.update({ resources, events });
+        } catch (err) {
+          console.error("資料 JSON 解析失敗", err);
+        }
+    </script>
+}

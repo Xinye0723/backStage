@@ -1,148 +1,15 @@
-﻿@import url('https://fonts.googleapis.com/css?family=Lato&display=swap');
-/* @import url('https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap'); */
-
-* {
-    box-sizing: border-box;
+﻿/* =============  1. 右側欄位願意收縮  ============= */
+/*   在 Razor 加一個 class="seat-col"，或直接選擇你那段欄位 */
+.seat-col,
+.seat-col .card,
+.seat-col .card-body {
+    min-width: 0;
 }
+/* ✨ 關鍵：允許被壓縮 */
 
-/*body {
-    font-family: 'Lato', sans-serif;*/
-    /* background-color: #242333; */
-    /* background: url("myke-simon-atsUqIm3wxo-unsplash.jpg"),
-        linear-gradient(rgba(0, 0, 0, .9), rgba(0, 0, 0, 0.9)); */
-    /*background: linear-gradient(rgba(0, 18, 50, 0.84), rgba(0, 0, 0, 0.95)), url("./lloyd-dirks-4SLz_RCk6kQ-unsplash.jpg") bottom;
-    background-size: cover;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: rgb(0, 18, 50);
-    padding-top: 25px;
-}*/
-
-.movie-container {
-    margin: 20px 0;
-}
-
-    .movie-container select {
-        background-color: #fff;
-        font-family: 'Lato', sans-serif;
-        border: 0;
-        border-radius: 5px;
-        font-size: 18px;
-        outline: none;
-        margin-left: 10px;
-        padding: 5px 15px 5px 15px;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        /* Will remove the browser style and let you use your own style */
-    }
-
-
-.container {
-    /*  it simply enables a 3D-space for children elements. */
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.row-container {
-    margin-top: 30px;
-}
-
-
-.seat {
-    background-color: #444451;
-    height: 12px;
-    width: 15px;
-    margin: 5px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    height: 30px;
-    width: 35px;
-    background: #01163e;
-    border: 2px solid #314c81;
-    transition: all .2s ease;
-}
-
-    .seat.selected {
-        background-color: #6feaf6;
-        background-color: #31d7a9;
-    }
-
-    .seat.occupied {
-        background-color: #fff;
-    }
-
-    .seat:nth-of-type(2) {
-        margin-right: 18px;
-    }
-
-    .seat:nth-last-of-type(2) {
-        margin-left: 18px;
-    }
-
-    .seat:not(.occupied):hover {
-        /* Selecting seats that do not have "occupied" class */
-        cursor: pointer;
-        transform: scale(1.2);
-    }
-
-.showcase .seat:not(.occupied):hover {
-    cursor: default;
-    transform: scale(1);
-}
-
-.showcase {
-    background-color: rgba(0, 0, 0, 0.1);
-    padding: 5px 10px;
-    border-radius: 5px;
-    color: #777;
-    list-style-type: none;
-    display: flex;
-    justify-content: space-between;
-}
-
-    .showcase li {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 10px;
-    }
-
-        .showcase li small {
-            margin-left: 2px;
-        }
-
-.row {
-    display: flex;
-}
-
-.screen {
-    background-color: #fff;
-    height: 70px;
-    width: 100%;
-    margin: 15px 0;
-    transform: rotateX(-45deg);
-    box-shadow: 0 3px 10px rgba(255, 255, 255, .7);
-}
-
-p.text {
-    margin: 5px 0;
-}
-
-    p.text span {
-        color: #6feaf5;
-    }
-
+/* =============  2. 螢幕示意圖  ============= */
 .movie-screen {
-    margin-top: 35px;
-    margin-bottom: 35px;
+    margin: 35px auto;
     text-align: center;
 }
 
@@ -150,97 +17,148 @@ p.text {
         max-width: 85%;
     }
 
-.subtitle {
-    position: relative;
-    text-align: center;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 10px;
-    color: #31d7a9;
-    font-size: 16px;
-    max-width: 270px;
-    margin-left: auto;
-    margin-right: auto;
+@media(max-width:576px) {
+    .movie-screen {
+        margin: 25px auto 20px;
+    }
+
+        .movie-screen img {
+            max-width: 92%;
+        }
 }
 
-    .subtitle:before,
-    .subtitle:after {
-        position: absolute;
-        content: '';
-        left: 50%;
-        -webkit-transform: translateX(-50%);
-        transform: translateX(-50%);
-        height: 1px;
-        background: #213a69;
-    }
-
-    .subtitle:before {
-        width: 80%;
-        top: 0;
-    }
-
-    .subtitle:after {
-        width: 100%;
-        bottom: 0;
-    }
-
-.text {
-    font-size: 18px;
+/* =============  3. 外層排版容器  ============= */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-#count,
-#total {
-    font-size: 24px;
-    padding: 0 8px;
+/*   讓座位區本身捲動，而不是撐破父元素  */
+.seats-wrapper {
+    width: 100%; /* 佔滿卡片寬度 */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-bottom: 4px; /* 給 overlay scrollbar 空間 */
+    display: flex;
+    justify-content: center;
 }
 
-.text-wrapper {
-    margin-top: 10px;
+.row-container {
+    width: max-content; /* 讓寬度跟內容一樣寬 */
+    margin: 0 !important; /* ← 把 -0.75rem 之類負邊距清掉 */
+    padding: 0 !important; /* 不要再墊 15px, 24px … */
 }
 
-@media (max-width: 576px) {
+/* =============  4. 每一排座位  ============= */
+.seat-row {
+    display: flex;
+    flex-wrap: nowrap; /* 不換行 */
+    justify-content: center; /* 內容沒撐滿時置中 */
+}
 
-    body {
-        padding-top: 30px;
+/* =============  5. 座位本體  ============= */
+.seat {
+    width: 35px;
+    height: 30px; /* 固定大小（易點擊）*/
+    margin: 5px;
+    border-radius: 10px 10px 0 0;
+    background: gray; /* 空位 */
+    border: 2px solid gray;
+    transition: .2s;
+    cursor: pointer;
+}
+
+
+
+    /* 已售 */
+    .seat:not(.occupied):hover {
+        cursor: pointer;
+        transform: scale(1.1);
     }
 
-    .movie-container select {
-        font-size: 14px;
+    /* --- 走道空隙：第 4、5 顆之間留 60px --- */
+    .seat:nth-of-type(4) {
+        margin-right: 60px;
     }
 
+    .seat:nth-last-of-type(4) {
+        margin-left: 60px;
+    }
+/* === 把走道 gap 同步到上方號碼列 === */
+.col-label:nth-of-type(5) {
+    margin-right: 60px;
+}
+
+.col-label:nth-last-of-type(4) {
+    margin-left: 60px;
+}
+
+/* 手機斷點要跟著縮小 gap */
+@media (max-width:576px) {
+    .col-label:nth-of-type(5) {
+        margin-right: 30px;
+    }
+
+    .col-label:nth-last-of-type(4) {
+        margin-left: 30px;
+    }
+}
+/* =============  6. 手機尺寸微縮  ============= */
+@media(max-width:576px) {
     .seat {
-        height: 21px;
-        width: 23px;
+        width: 24px;
+        height: 20px;
+        margin: 3px; /* 原本 5 */
+        border-width: 1px;
+        border-radius: 6px 6px 0 0;
     }
 
     .movie-screen img {
-        max-width: 92%;
+        max-width: 90%;
+    }
+    /* 座位縮小 */
+    /* 走道也跟著縮，避免佔滿整寬 */
+    .seat:nth-of-type(4) {
+        margin-right: 30px;
     }
 
-    .subtitle {
-        font-size: 13px;
-        padding: 7px;
+    .seat:nth-last-of-type(4) {
+        margin-left: 30px;
     }
+}
 
-    .seat:nth-of-type(2) {
-        margin-right: 12px;
+@media (max-width: 767.98px) {
+    html, body {
+        overflow-y: auto; /* 可以上下捲 */
+        overflow-x: hidden; /* 仍然禁止整頁橫捲，避免抖動 */
     }
+}
+/* ======== 行/列 標籤 ======== */
+.row-label,
+.col-label {
+    width: 35px; /* 與 .seat 相同寬 */
+    height: 30px; /* 與 .seat 相同高 */
+    margin: 5px; /* 與 .seat 相同外距 */
+    flex: 0 0 35px; /* 塞進 .seat-row 的 flex 排版 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #555;
+    user-select: none; /* 不能反白 */
+    pointer-events: none; /* 點不到，避免誤觸 */
+}
 
-    .seat:nth-last-of-type(2) {
-        margin-left: 12px;
-    }
+/* 若想讓 1-25 這一排在捲動時固定在頂端，可多加 ↓ */
+.seat-header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 5;
+}
 
-    .movie-screen {
-        margin-top: 25px;
-        margin-bottom: 20px;
-    }
-
-    .text {
-        font-size: 14px;
-    }
-
-    #count,
-    #total {
-        font-size: 18px
-    }
+.seats-wrapper {
+    user-select: none;
 }
