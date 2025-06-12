@@ -70,21 +70,8 @@
     cursor: pointer;
 }
 
-    .seat.occupied {
-        background: #dc3545;
-    }
-    /* 已售 */
-    .seat.maintenance {
-        background: #ffc107;
-    }
-    /* 維修 */
-    .seat.selected {
-        background: #01163e;
-    }
-    /* 已選 */
-    .seat.occupied {
-        background: #fff;
-    }
+
+
     /* 已售 */
     .seat:not(.occupied):hover {
         cursor: pointer;
@@ -99,7 +86,25 @@
     .seat:nth-last-of-type(4) {
         margin-left: 60px;
     }
+/* === 把走道 gap 同步到上方號碼列 === */
+.col-label:nth-of-type(5) {
+    margin-right: 60px;
+}
 
+.col-label:nth-last-of-type(4) {
+    margin-left: 60px;
+}
+
+/* 手機斷點要跟著縮小 gap */
+@media (max-width:576px) {
+    .col-label:nth-of-type(5) {
+        margin-right: 30px;
+    }
+
+    .col-label:nth-last-of-type(4) {
+        margin-left: 30px;
+    }
+}
 /* =============  6. 手機尺寸微縮  ============= */
 @media(max-width:576px) {
     .seat {
@@ -129,4 +134,31 @@
         overflow-y: auto; /* 可以上下捲 */
         overflow-x: hidden; /* 仍然禁止整頁橫捲，避免抖動 */
     }
+}
+/* ======== 行/列 標籤 ======== */
+.row-label,
+.col-label {
+    width: 35px; /* 與 .seat 相同寬 */
+    height: 30px; /* 與 .seat 相同高 */
+    margin: 5px; /* 與 .seat 相同外距 */
+    flex: 0 0 35px; /* 塞進 .seat-row 的 flex 排版 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #555;
+    user-select: none; /* 不能反白 */
+    pointer-events: none; /* 點不到，避免誤觸 */
+}
+
+/* 若想讓 1-25 這一排在捲動時固定在頂端，可多加 ↓ */
+.seat-header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 5;
+}
+
+.seats-wrapper {
+    user-select: none;
 }
