@@ -14,6 +14,9 @@ public partial class Movie
     [Display(Name = "英文片名")]
     public string MovieNameEnglish { get; set; } = null!;
 
+    [Display(Name = "類型")]
+    public string? Genre { get; set; }
+
     [Display(Name = "分級")]
     public int MovieRatingId { get; set; }
 
@@ -69,6 +72,7 @@ public partial class Movie
     public int? ViewCount { get; set; }
 
     [Display(Name = "票房")]
+    [DisplayFormat(DataFormatString ="{0:C}")]
     [Range(0, long.MaxValue, ErrorMessage = "票房不得小於0")]
     public long BoxOffice { get; set; }
 

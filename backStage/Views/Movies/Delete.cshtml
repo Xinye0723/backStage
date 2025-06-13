@@ -6,7 +6,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<h4 style="color:red">🤔很難看嗎？票房爛到想蛋雕？</h4>
+<h4 style="color:red">🤔很難看嗎？票房有這麼爛？</h4>
 <div>
     <h4></h4>
     <hr />
@@ -28,6 +28,12 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.MovieNameEnglish)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Genre)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Genre)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.MovieRatingId)

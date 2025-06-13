@@ -9,8 +9,9 @@
 <p>
     <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-film"></i> 電影新增</a>
 </p>
-<div style="overflow-x:auto;width: 100%">
-    <table class="table table-hover table-bordered align-middle" style="min-width:2100px">
+<div>
+    <table id="moviesTable" style="min-width:1400px" 
+            class="table movie-table table-hover table-bordered align-middle">
     <thead class="table-dark">
         <tr>
             <th></th>
@@ -25,6 +26,9 @@
                 英文片名
             </th>
             <th>
+                類型
+            </th>
+            <th>
                 分級
             </th>
             <th>
@@ -33,37 +37,37 @@
             <th>
                 上映日期
             </th>
-            <th>
+            @* <th>
                 下檔日期
+            </th> *@
+            <th>
+                已上映
             </th>
             <th>
-                是否已上映
+                即將上映
             </th>
+            @* <th>
+                現正熱映
+            </th> *@
             <th>
-                是否即將上映
-            </th>
-            <th>
-                是否現正熱映
-            </th>
-            <th>
-                是否已下檔
+                已下檔
             </th>
             <th>
                 導演
             </th>
-            <th style="min-width:110px;">
+            <th>
                 主演
             </th>
-            <th>
+            @* <th>
                 製作商
-            </th>
+            </th> *@
             <th>
                 發行商
             </th>
             <th>
                 國家
             </th>
-            <th>
+            @* <th>
                 劇情
             </th>
             <th>
@@ -74,8 +78,7 @@
             </th>
             <th>
                 票房
-            </th>
-            <th></th>
+            </th> *@
         </tr>
     </thead>
 
@@ -86,12 +89,9 @@
     @foreach (var item in Model) {
         <tr>
             <td>
-                <a asp-action="Edit" class="btn btn-success" asp-route-id="@item.MovieId">
-                    <i class="fa-solid fa-user-pen"></i> 編輯</a>
-                        <a asp-action="Details" class="btn btn-warning text-white px-3" asp-route-id="@item.MovieId">
-                    <i class="fa-solid fa-database"></i> 細項</a>
-                <a asp-action="Delete" class="btn btn-danger px-3" asp-route-id="@item.MovieId">
-                    <i class="fa-solid fa-trash"></i> 刪除</a>
+                <a asp-action="Edit" class="btn btn-success" asp-route-id="@item.MovieId"> <i class="fa-solid fa-user-pen"></i>編輯</a>
+                <a asp-action="Details" class="btn btn-warning" asp-route-id="@item.MovieId"><i class="fa-solid fa-database"></i> 細項</a>
+                <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.MovieId"><i class="fa-solid fa-trash"></i> 刪除</a>
             </td>
             <td>@rowNumber</td>
             <td>
@@ -104,6 +104,9 @@
                 @Html.DisplayFor(modelItem => item.MovieNameEnglish)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Genre)
+            </td>
+            <td>
                 @item.MovieRating?.Description (@item.MovieRating?.RatingCode)
             </td>
             <td>
@@ -112,37 +115,37 @@
             <td>
                 @Html.DisplayFor(modelItem => item.ReleaseDate)
             </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
+            </td> *@
             <td>
                 @Html.DisplayFor(modelItem => item.IsReleased)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.IsUpcoming)
             </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.IsNowShowing)
-            </td>
+            </td> *@
             <td>
                 @Html.DisplayFor(modelItem => item.IsEnded)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Director)
             </td>
-            <td style="max-width:140px;white-space:pre-line;word-break:break-all;">
+            <td>
                 @Html.DisplayFor(modelItem => item.Starring)
             </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.Production)
-            </td>
+            </td> *@
             <td>
                 @Html.DisplayFor(modelItem => item.Distributor)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Country)
             </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.Plot)
             </td>
             <td>
@@ -153,15 +156,32 @@
             </td>
             <td>
                 @item.BoxOffice.ToString("N0")
-            </td>
-            <td>
-                <a asp-action="Edit" class="btn btn-success" asp-route-id="@item.MovieId"> <i class="fa-solid fa-user-pen"></i>編輯</a>
-                <a asp-action="Details" class="btn btn-warning" asp-route-id="@item.MovieId"><i class="fa-solid fa-database"></i> 細項</a>
-                <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.MovieId"><i class="fa-solid fa-trash"></i> 刪除</a>
-            </td>
+            </td> *@
         </tr>
                 rowNumber++;
 }
     </tbody>
 </table>
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+}
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $('#moviesTable').DataTable({
+          language: {
+            url: '//cdn.datatables.net/plug-ins/2.3.2/i18n/zh-HANT.json',
+          },
+          paging: true,
+          searching: true,
+          ordering: true,
+          order: [],
+          lengthMenu: [20, 40, 60, 80, 100]
+        });
+      });
+    </script>
+}
