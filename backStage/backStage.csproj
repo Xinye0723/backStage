@@ -8,6 +8,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\images\mg\0cd71cd9-f203-4dfe-8078-d1a4bb981906.jpg" />
+    <Content Remove="wwwroot\images\mg\0f5d715a-11bc-4b2e-9a04-32eb21eddb0e.jpg" />
+    <Content Remove="wwwroot\images\mg\26047c8b-9b64-4dee-9b25-30f3c6884337.jpg" />
+    <Content Remove="wwwroot\images\mg\31ccc70d-73fd-4c0e-a6b4-95e747afde03.jpg" />
+    <Content Remove="wwwroot\images\mg\3797625c-298d-4946-ae22-99b24f7daa6b.jpg" />
+    <Content Remove="wwwroot\images\mg\3a26ea8f-655b-465a-ae6c-55d3501f0719.jpg" />
+    <Content Remove="wwwroot\images\mg\410d2cdd-6ab1-4a05-8548-3ffe1b1533dc.jpg" />
+    <Content Remove="wwwroot\images\mg\46c79e3a-ba9e-4d0c-9ae8-b7e784ead8be.jpg" />
+    <Content Remove="wwwroot\images\mg\4fec794a-390a-4050-ba5b-c6197168f918.jpg" />
+    <Content Remove="wwwroot\images\mg\6a3a7863-9afc-492b-9ec6-46513685de4a.jpg" />
+    <Content Remove="wwwroot\images\mg\7235162b-723c-478f-bff7-94a1223ab6e6.jpg" />
+    <Content Remove="wwwroot\images\mg\7641ff8a-f004-485c-8c50-56924fc1abeb.jpg" />
+    <Content Remove="wwwroot\images\mg\7a03d55f-1e91-4c91-b5ca-022dbe4421a0.jpg" />
+    <Content Remove="wwwroot\images\mg\848aa4e1-f5b8-4c4c-b225-05235235f51d.jpg" />
+    <Content Remove="wwwroot\images\mg\a02a36e8-4cf2-4c9a-ad3b-34a82cd6ecd0.jpg" />
+    <Content Remove="wwwroot\images\mg\abba2ebb-5793-4477-bf46-c2e0d7b69ec4.jpg" />
+    <Content Remove="wwwroot\images\mg\abe9fcb0-0895-489e-bae5-f305fd990e78.jpg" />
+    <Content Remove="wwwroot\images\mg\b57d5e8a-0a91-4b5e-92c2-db56199a9a78.jpg" />
+    <Content Remove="wwwroot\images\mg\c4d56f47-c5a6-44e6-a485-0eba7bc841a8.jpg" />
+    <Content Remove="wwwroot\images\mg\ceacd9e2-7550-4499-85a8-cc041a22b088.jpg" />
+    <Content Remove="wwwroot\images\mg\d36528c4-d560-4061-a0fc-ead0ed3ce40b.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.16" />
@@ -24,6 +48,9 @@
 
   <ItemGroup>
     <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\mg\1.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -4,66 +4,92 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>編輯頁面</h1>
+<h1>編輯活動</h1>
 
-<h4>活動資訊</h4>
+@* <h4>活動資訊</h4> *@
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+    <div class="col-md-4 mt-2">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="GroupId" />
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="MovieId" class="control-label"></label>
                 <input asp-for="MovieId" class="form-control" />
                 <span asp-validation-for="MovieId" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="ShowTimeId" class="control-label"></label>
                 <input asp-for="ShowTimeId" class="form-control" />
                 <span asp-validation-for="ShowTimeId" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="GroupName" class="control-label"></label>
                 <input asp-for="GroupName" class="form-control" />
                 <span asp-validation-for="GroupName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="LeaderMemberId" class="control-label"></label>
                 <input asp-for="LeaderMemberId" class="form-control" />
                 <span asp-validation-for="LeaderMemberId" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="MaxMembers" class="control-label"></label>
                 <input asp-for="MaxMembers" class="form-control" />
                 <span asp-validation-for="MaxMembers" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="GroupNote" class="control-label"></label>
-                <input asp-for="GroupNote" class="form-control" />
-                <span asp-validation-for="GroupNote" class="text-danger"></span>
+            <div class="form-group mt-2">
+                <label class="control-label">活動照片</label>
+                @if (!string.IsNullOrEmpty(Model.GroupNote))
+                {
+                    <div style="margin-bottom:10px;">
+                        <img src="@Model.GroupNote" alt="目前活動圖片" style="max-width: 200px; max-height: 200px; border:1px solid #ccc;" />
+                    </div>
+                }
+                <input type="file" name="ImageFile" class="form-control" />
+                <input type="hidden" asp-for="GroupNote" />
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="CreateTime" class="control-label"></label>
                 <input asp-for="CreateTime" class="form-control" />
                 <span asp-validation-for="CreateTime" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <label asp-for="Status" class="control-label"></label>
                 <input asp-for="Status" class="form-control" />
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-3">
                 <input type="submit" value="儲存" class="btn btn-primary" />
+                <a asp-action="Index" id="goHome" class="btn btn-secondary ms-2">回首頁</a>
             </div>
         </form>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">回首頁</a>
-</div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        let formChanged = false;
+
+        // 1. 監聽表單有沒有被修改
+        document.querySelectorAll('input, textarea, select').forEach(function(input) {
+            input.addEventListener('change', function() {
+                formChanged = true;
+            });
+        });
+
+        // 2. 監聽「回首頁」點擊
+        document.getElementById('goHome').addEventListener('click', function(event) {
+            if (formChanged) {
+                if (!confirm('資料尚未儲存，確定要離開嗎？')) {
+                    event.preventDefault(); // 取消跳頁
+                }
+            }
+        });
+
+        // 3. 儲存時（點擊 submit 按鈕），不再提醒
+        document.querySelector('form').addEventListener('submit', function() {
+            formChanged = false;
+        });
+    </script>
 }

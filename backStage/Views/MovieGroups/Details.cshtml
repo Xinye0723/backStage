@@ -4,63 +4,84 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>活動細節</h1>
+<h1>活動資訊</h1>
 
-<div>
-    <h4>活動資訊</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MovieId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MovieId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ShowTimeId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ShowTimeId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GroupName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GroupName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LeaderMemberId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LeaderMemberId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaxMembers)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaxMembers)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GroupNote)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GroupNote)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreateTime)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreateTime)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.GroupId">編輯</a> |
-    <a asp-action="Index">回首頁</a>
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9 col-xl-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header text-white py-3 rounded-top-4" style="background:#2C3E50;">
+                    <h3 class="mb-0 fw-bold text-center">活動資訊</h3>
+                </div>
+                <div class="card-body px-5 py-4">
+
+                    <div class="row mb-2 fs-5">
+                        <div class="col-3 fw-semibold text-end">電影ID</div>
+                        <div class="col-9">@Model.MovieId</div>
+                    </div>
+                    <div class="border-bottom my-1"></div>
+
+                    <div class="row mb-2 fs-5">
+                        <div class="col-3 fw-semibold text-end">放映時間ID</div>
+                        <div class="col-9">@Model.ShowTimeId</div>
+                    </div>
+                    <div class="border-bottom my-1"></div>
+
+                    <div class="row mb-2 fs-5">
+                        <div class="col-3 fw-semibold text-end">活動名稱</div>
+                        <div class="col-9">@Model.GroupName</div>
+                    </div>
+                    <div class="border-bottom my-1"></div>
+
+                    <div class="row mb-2 fs-5">
+                        <div class="col-3 fw-semibold text-end">主辦人ID</div>
+                        <div class="col-9">@Model.LeaderMemberId</div>
+                    </div>
+                    <div class="border-bottom my-1"></div>
+
+                    <div class="row mb-2 fs-5">
+                        <div class="col-3 fw-semibold text-end">最大人數</div>
+                        <div class="col-9">@Model.MaxMembers</div>
+                    </div>
+                    <div class="border-bottom my-1"></div>
+
+                    <div class="row mb-2 fs-5 align-items-center">
+                        <div class="col-3 fw-semibold text-end">活動照片</div>
+                        <div class="col-9">
+                            @if (!string.IsNullOrEmpty(Model.GroupNote))
+                            {
+                                <img src="@Model.GroupNote"
+                                     alt="活動圖片"
+                                     style="width:180px;height:120px;object-fit:cover;border-radius:10px;box-shadow:0 0 16px #eee;" />
+                            }
+                            else
+                            {
+                                <span class="text-muted">無</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="border-bottom my-1"></div>
+
+                    <div class="row mb-2 fs-5">
+                        <div class="col-3 fw-semibold text-end">創建時間</div>
+                        <div class="col-9">
+                            @(Model.CreateTime.HasValue
+                                                        ? Model.CreateTime.Value.ToString("yyyy/MM/dd HH:mm")
+                                                        : "")
+                        </div>
+                    </div>
+                    <div class="border-bottom my-1"></div>
+
+                    <div class="row mb-2 fs-5">
+                        <div class="col-3 fw-semibold text-end">活動介紹</div>
+                        <div class="col-9" style="white-space: pre-line;">@Model.Status</div>
+                    </div>
+
+                </div>
+                <div class="card-footer text-center bg-white border-0 pb-4">
+                    <a asp-action="Index" class="btn btn-secondary px-4">回首頁</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
