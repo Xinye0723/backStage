@@ -1,64 +1,112 @@
 ﻿@model backStage.Models.ShowTime
-
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "編輯場次";
 }
 
-<h1>Edit</h1>
+<div class="container my-5">
+    <!-- 卡片 -->
+    <div class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeIn">
+        <div class="card-header bg-dark text-white d-flex align-items-center">
+            <i class="fa-solid fa-film me-2"></i>
+            <h4 class="mb-0">@Model.Movie?.MovieNameChinese</h4>
+        </div>
 
-<h4>ShowTime</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ShowTimeId" />
-            <div class="form-group">
-                <label asp-for="TheaterNumber" class="control-label"></label>
-                <input asp-for="TheaterNumber" class="form-control" />
-                <span asp-validation-for="TheaterNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShowDate" class="control-label"></label>
-                <input asp-for="ShowDate" class="form-control" />
-                <span asp-validation-for="ShowDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShowTime1" class="control-label"></label>
-                <input asp-for="ShowTime1" class="form-control" />
-                <span asp-validation-for="ShowTime1" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MovieId" class="control-label"></label>
-                <input asp-for="MovieId" class="form-control" />
-                <span asp-validation-for="MovieId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ScreenType" class="control-label"></label>
-                <input asp-for="ScreenType" class="form-control" />
-                <span asp-validation-for="ScreenType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@Model.ShowTimeId" class="row g-4">
+
+                @* 防止 ID 被改動 *@
+                <input type="hidden" asp-for="ShowTimeId" />
+
+                <!-- 影廳號碼 -->
+                <div class="col-md-6">
+                    <label asp-for="TheaterNumber" class="form-label fw-semibold"></label>
+                    <input asp-for="TheaterNumber" class="form-control" />
+                    <span asp-validation-for="TheaterNumber" class="text-danger small"></span>
+                </div>
+                
+                <!-- 放映日期 -->
+                <div class="col-md-6">
+                    <label asp-for="ShowDate" class="form-label fw-semibold"></label>
+                    <input asp-for="ShowDate" type="date" class="form-control" />
+                    <span asp-validation-for="ShowDate" class="text-danger small"></span>
+                </div>
+
+
+                <!-- 銀幕格式 -->
+                <div class="col-md-6">
+                    <label asp-for="ScreenType" class="form-label fw-semibold"></label>
+                    <input asp-for="ScreenType" class="form-control" />
+                    <span asp-validation-for="ScreenType" class="text-danger small"></span>
+                </div>
+                <div>
+
+                </div>
+                <!-- 開始時間（CreatedAt）-->
+                <div class="col-md-6">
+                    <label asp-for="CreatedAt" class="form-label fw-semibold">開始時間</label>
+                    <input asp-for="CreatedAt" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="CreatedAt" class="text-danger small"></span>
+                </div>
+
+                <!-- 結束時間（UpdatedAt）-->
+                <div class="col-md-6">
+                    <label asp-for="UpdatedAt" class="form-label fw-semibold">結束時間</label>
+                    <input asp-for="UpdatedAt" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="UpdatedAt" class="text-danger small"></span>
+                </div>
+
+                <!-- 電影編號 -->
+                <div class="col-md-6">
+                    @* <label asp-for="MovieId" class="form-label fw-semibold"></label> *@
+                    <input type="hidden" asp-for="MovieId" class="form-control" />
+                    <span asp-validation-for="MovieId" class="text-danger small"></span>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> 儲存
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fa-solid fa-xmark me-1"></i> 取消
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $('form').on('submit', function (e) {
+            e.preventDefault();                 // 先擋掉原本的 PostBack
+            const $form = $(this);
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: $form.serialize(),
+                success: function () {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '修改完成',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // 這裡你要留在原頁 or 導回列表自己決定
+                        window.location = '/ShowTimes/Index';
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: '更新失敗，請再試一次！'
+                    });
+                }
+            });
+        });
+    </script>
 }
+
