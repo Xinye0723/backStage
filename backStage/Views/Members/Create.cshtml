@@ -55,27 +55,31 @@
                     <input asp-for="MemberIntroSelf" class="form-control" />
                     <span asp-validation-for="MemberIntroSelf" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="MemberImgUpload" class="control-label"></label>
-                <input asp-for="MemberImgUpload" class="form-control" type="file" name="MemberImgUpload" id="imageUpload" />
-                    <span asp-validation-for="MemberImgUpload" class="text-danger"></span>
-                    <img id="imagePreview" src="" alt="預覽圖片" style="display:none; max-width: 200px; margin-top: 10px;" />
-                </div>
-                <script>
-                    document.getElementById("imageUpload").addEventListener("change", function(event) {
-                        let file = event.target.files[0];
-                        if (file) {
-                            let reader = new FileReader();
-                            reader.onload = function(e) {
-                                let preview = document.getElementById("imagePreview");
-                                preview.src = e.target.result;
-                                preview.style.display = "block";
-                            };
-                            reader.readAsDataURL(file);
+            <div class="form-group">
+                <label asp-for="MemberImg">會員圖片</label>
+                <input type="file" name="ImageFile" id="ImageFile" class="form-control" accept="image/*" />
+            </div>
+            <div class="form-group">
+                <img id="preview" src="#" alt="預覽圖片" style="max-width: 200px; display: none;" />
+            </div>
+            @* <div class="form-group">
+                <label for="ImageFile">會員照片</label>
+                <input type="file" name="ImageFile" id="ImageFile" class="form-control" />
+            </div> *@
+            <script>
+                document.getElementById('ImageFile').addEventListener('change', function(e) {
+                    var file = e.target.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var preview = document.getElementById('preview');
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
                         }
-                    });
-                </script>
-
+                        reader.readAsDataURL(file);
+                    }
+                });
+            </script>
                 <!-- 其他欄位 -->
                 @* <button type="submit" class="btn btn-primary">新增</button> *@
 
