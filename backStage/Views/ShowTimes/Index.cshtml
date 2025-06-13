@@ -1,57 +1,58 @@
-﻿@model IEnumerable<backStage.Models.ShowTime>
-@using System.Text.Json
-@using System.Text.Encodings.Web
-
-@{
-    ViewData["Title"] = "Index";
-
-    /* ------------------------------
-       從 Controller 傳進來的資料：
-         ViewBag.HallList → List<int>  影廳編號 (例如 1,2,3)
-         Model            → 今日所有 ShowTime 資料
-       ------------------------------ */
-
-    var halls = ViewBag.HallList as List<int> ?? new List<int>();
-
-    // DayPilot 資源（影廳）→ JS 陣列字串
-    var resourcesObj = halls.Select(h => new { name = $"影廳 {h}", id = $"R{h}" });
-    string resourcesJson = JsonSerializer.Serialize(resourcesObj, new JsonSerializerOptions
-    {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    });
-
-    // DayPilot 事件（場次）→ JS 陣列字串
-    // var eventsObj = Model.Select(st => new
-    // {
-    //     id = st.ShowTimeId,
-    //     start = st.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
-    //     end = st.EndTime.ToString("yyyy-MM-ddTHH:mm:ss"),
-    //     text = st.MovieTitle,
-    //     resource = $"R{st.TheaterNumber}"
-    // });
-    // string eventsJson = JsonSerializer.Serialize(eventsObj, new JsonSerializerOptions
-    // {
-    //     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    // });
+﻿@{
+    ViewData["Title"] = "排片排程";
 }
 
 @section Styles {
     <style>
-        /* ========= 全域字體 ========= */
+        /* 全域字型 */
         p, body, td, input, select, button {
             font-family: -apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
             font-size: 14px;
+            text-align: center;
         }
 
-        /* ========= 背景 ========= */
         body {
             margin: 0;
             padding: 0;
             background: #fff;
         }
 
-        .main {
-            padding: 10px;
+        /* DayPilot 左欄置中 */
+        .scheduler_default_rowheader_inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 已上映電影表格 */
+        #moviesTable td, #moviesTable th {
+            white-space: nowrap;
+            padding: 10px 16px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .dataTables_filter {
+            margin-bottom: .5rem; /* 與表頭的縫隙 */
+            margin-right: 3px; /* 與卡片右邊框的距離 */
+        }
+        #moviesTable td:nth-child(2) {
+             max-width: 250px;
+            white-space: normal;
+            word-break: break-word;
+                
+        }
+        .scheduler_default_event_delete {
+            opacity: 1 !important;         /* Hover 時預設 0 → 1；直接設 1 */
+        }
+        @@media(max - width:576px) {
+            #moviesTable td,#moviesTable th
+
+        {
+            font-size: 14px;
+            padding: 8px;
+        }
+
         }
     </style>
 }
@@ -60,55 +61,216 @@
     <div id="dp"></div>
 </div>
 
+<div class="d-flex justify-content-end mt-2">
+    <button id="btnSaveShowTimes" class="btn btn-success">儲存場次</button>
+</div>
+
+<div class="card mt-2 p-2">
+    <div class="card-header d-flex align-items-center">
+        <i class="fa-solid fa-video me-2"></i><h5 class="mb-0">已上架電影列表</h5>
+    </div>
+    <div class="card-body p-0 mx-3 my-3">
+        <div class="table-responsive">
+            <table id="moviesTable" class="table table-bordered table-striped mb-0">
+                <thead class="table-active">
+                    <tr>
+                        <th>中文片名</th>
+                        <th>英文片名</th>
+                        <th>上映日期</th>
+                        <th>片長</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 @section Scripts {
-    <script>
-        /*************************************************
-         * DayPilot Scheduler 主設定
-         *************************************************/
-        const dp = new DayPilot.Scheduler("dp", {
-          locale: "zh-tw",
-          cellWidthSpec: "Fixed",
-          cellWidth: 50,
-          cellDuration: 15,
-          scale: "CellDuration",
-          days: 1,
-          startDate: DayPilot.Date.today(),
-          timeHeaders: [
-            { groupBy:"Day",  format:"dddd, d MMMM yyyy" },
-            { groupBy:"Hour" },
-            { groupBy:"Cell", format:"mm" }
-          ],
-          eventHeight: 50,
-          businessWeekends: true,
-          timeRangeSelectedHandling: "Enabled",
-          onTimeRangeSelected: async (args) => {
-            const m = await DayPilot.Modal.prompt("建立新場次：", "片名");
-            dp.clearSelection();
-            if (m.canceled) return;
-            dp.events.add({ id: DayPilot.guid(), start: args.start, end: args.end, resource: args.resource, text: m.result });
-          },
-          eventMoveHandling: "Update",
-          eventResizeHandling: "Update",
-          eventDeleteHandling: "Update",
-          onEventMoved:   a => console.log("moved",   a.e.data),
-          onEventResized: a => console.log("resized", a.e.data),
-          onEventDeleted: a => console.log("deleted", a.e.data),
-          eventRightClickHandling: "ContextMenu",
-          contextMenu: new DayPilot.Menu({ items:[{ text:"刪除", onClick:a=>dp.events.remove(a.source) }] })
-        });
 
-        dp.init();
+    <!-- ① jQuery（DataTables 依賴） -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-        /*************************************************
-         * 由 Razor 注入後端資料（轉成 JS 陣列）
-         *************************************************/
-        try {
-          const resources = JSON.parse('@Html.Raw(JsonSerializer.Serialize(resourcesJson))');
-          
+    <!-- ② DataTables -->
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
+    <!-- ③ SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- ④ DayPilot Lite -->
+    <script src="https://unpkg.com/daypilot-lite@2024.3.5465/daypilot-lite.min.js"></script>
+
+    <!-- ⑤ 核心腳本（ES Module） -->
+    <script type="module">
+        /* ========= 全域狀態 ========= */
+        const weekStartStr = DayPilot.Date.today().firstDayOfWeek().toString("yyyy-MM-dd");
+        const moviesMap    = new Map();     // 片名 → 片長 (分鐘)
+        const deletedIds   = new Set();     // 已入庫待刪 Id
+
+        /* ========= 初始化 ========= */
+        (async () => {
+
+          /* ---------- 建立 DayPilot ---------- */
+          const dp = new DayPilot.Scheduler("dp", {
+            locale: "zh-tw",
+            cellWidth: 50,
+            scale: "CellDuration",
+            cellDuration: 5,
+            days: 7,
+            startDate: weekStartStr,
+            eventHeight: 40,
+            showEventDeleteButtons: true,          // ★ 一定要 true，才有「×」按鈕
+
+            timeHeaders: [
+              {
+                groupBy: "Day",
+                format: a => {
+                  const d = a.start;
+                  return `${d.year()}/${d.month()}/${d.day()}(${d.locale("zh-tw").toString("ddd")})`;
+                }
+              },
+              { groupBy: "Hour" },
+              { groupBy: "Cell", format: "mm" }
+            ],
+
+            /* --- 右鍵選單 --- */
+            eventRightClickHandling: "ContextMenu",
+            contextMenu: new DayPilot.Menu([
+              {
+                text: "編輯",
+                onClick: args => {
+                  const id = args.source.id();        // ShowTimeId
+                  window.location.href = `/ShowTimes/Details/${id}`;
+                }
+              }
+            ]),
+
+            /* --- 拖拉建立新事件 --- */
+            timeRangeSelectedHandling: "Enabled",
+            onTimeRangeSelected: async a => {
+              const name = (await DayPilot.Modal.prompt("請輸入場次名稱：", "")).result?.trim();
+              dp.clearSelection();
+              if (!name) return;
+
+              const dur     = moviesMap.get(name) ?? 0;
+              const rounded = Math.ceil(dur / 5) * 5 || 5;     // 向上取 5 分倍數
+              const end     = a.start.addMinutes(rounded);
+
+              dp.events.add({ id: DayPilot.guid(), start: a.start, end, resource: a.resource, text: name });
+            },
+
+            /* --- × 刪除 --- */
+            eventDeleteHandling: "Update",
+            onEventDeleted: args => {
+            const idNum = Number(args.e.id());      // 先抓 Id（id() 才是字串）
+            if (!Number.isNaN(idNum)) deletedIds.add(idNum);
+
+            dp.events.remove(args.e.id());
+            }
+          });
+          dp.init();
+
+          /* 方便 Console 除錯 */
+          window.dp         = dp;
+          window.deletedIds = deletedIds;
+
+          /* 初次載入資料 */
+          await loadSchedulerData(dp);
+          await loadReleasedMovies();
+
+          /* 儲存按鈕 */
+          document.getElementById("btnSaveShowTimes")
+                  .addEventListener("click", () => saveAll(dp));
+
+        })(); // IIFE
+
+        /* ========= 載入影廳/場次 ========= */
+        async function loadSchedulerData(dp) {
+          const [resources, events] = await Promise.all([
+            fetch("/ShowTimes/GetTheaters").then(r => r.json()),
+            fetch(`/ShowTimes/GetShowTimes?weekStart=${weekStartStr}`).then(r => r.json())
+          ]);
+          dp.events.list = [];                   // 清空舊事件，避免重複
           dp.update({ resources, events });
-        } catch (err) {
-          console.error("資料 JSON 解析失敗", err);
+          deletedIds.clear();
+        }
+
+        /* ========= 載入已上映電影(DataTable) ========= */
+        async function loadReleasedMovies() {
+          const movies = await fetch("/Movies/GetReleasedMovies").then(r => r.json());
+          moviesMap.clear();
+          movies.forEach(m => moviesMap.set(m.movieNameChinese, m.duration));
+
+          const tbody = document.querySelector("#moviesTable tbody");
+          tbody.innerHTML = movies.map(m =>
+            `<tr><td>${m.movieNameChinese}</td><td>${m.movieNameEnglish}</td><td>${m.releaseDate}</td><td>${m.duration}</td></tr>`
+          ).join("");
+
+          if ($.fn.DataTable.isDataTable("#moviesTable")) {
+            $("#moviesTable").DataTable().destroy();
+          }
+          $("#moviesTable").DataTable({
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json" }
+          });
+        }
+
+        /* ========= 儲存 (整批覆蓋) ========= */
+        async function saveAll(dp) {
+          /* --- 時間重疊檢查 (允許銜接) --- */
+          const byHall = {};
+          for (const ev of dp.events.list) (byHall[ev.resource] ??= []).push(ev);
+          for (const hall in byHall) {
+            const list = byHall[hall].sort((a, b) => a.start - b.start);
+            for (let i = 1; i < list.length; i++) {
+              if (list[i].start < list[i - 1].end) {
+                Swal.fire("時間重疊", `影廳 ${hall} 有重疊場次`, "error");
+                return;
+              }
+            }
+          }
+
+          /* --- 組 payload --- */
+          const payload = {
+        weekStart: weekStartStr,
+          events: dp.events.list
+                  .filter(ev => !deletedIds.has(Number(ev.id)))   // ← 新增這行
+                  .map(ev => ({
+                    id:            Number(ev.id) || 0,
+                    theaterNumber: +ev.resource,
+                    showDate:  ev.start.toString("yyyy-MM-dd"),
+                    timeStart: ev.start.toString("HH:mm"),
+                    timeEnd:   ev.end.toString("HH:mm"),
+                    movieName: ev.text
+                  })),
+          deleteIds: [...deletedIds]
+        };
+
+          /* 空 events → 確認清空 */
+          if (payload.events.length === 0) {
+            const ok = await Swal.fire({
+              icon: "question",
+              title: "確定清空本週？",
+              showCancelButton: true,
+              confirmButtonText: "清空",
+              cancelButtonText: "取消"
+            });
+            if (!ok.isConfirmed) return;
+          }
+
+          /* --- 送到後端 --- */
+          const res = await fetch("/ShowTimes/Save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            await loadSchedulerData(dp);
+            Swal.fire("儲存成功！", "", "success");
+          } else {
+            Swal.fire("儲存失敗", await res.text(), "error");
+          }
         }
     </script>
 }
+

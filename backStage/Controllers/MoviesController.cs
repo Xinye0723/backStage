@@ -12,7 +12,25 @@ namespace backStage.Controllers
     public class MoviesController : Controller
     {
         private readonly MovieContext _context;
+        //抓已上架電影
+        [HttpGet]
+        public async Task<IActionResult> GetReleasedMovies()
+        {
+            var movies = await _context.Movies
+                .Where(m => m.IsReleased)
+                .Select(m => new
+                {
+                    m.MovieId,
+                    m.MovieNameChinese,
+                    m.MovieNameEnglish,
+                    m.ReleaseDate,
+                    m.Duration,
+                    m.Director
+                })
+                .ToListAsync();
 
+            return Json(movies);
+        }
         public MoviesController(MovieContext context)
         {
             _context = context;

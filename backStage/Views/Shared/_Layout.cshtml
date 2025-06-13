@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="~/themify/themify-icons/themify-icons.css" />
     <link rel="stylesheet" href="~/css/seats.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
@@ -50,7 +50,11 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/adminlte.js"></script>
     <script src="~/js/daypilot-all.min.js"></script>
-    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    @* <script src="https://cdn.daypilot.org/daypilot-lite.min.js"></script> *@
+    @* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    <script src="https://unpkg.com/daypilot-lite@2024.3.5465/daypilot-lite.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

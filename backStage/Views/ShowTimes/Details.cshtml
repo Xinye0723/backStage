@@ -1,60 +1,45 @@
 ﻿@model backStage.Models.ShowTime
-
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "場次詳情";
 }
 
-<h1>Details</h1>
+<!-- ★★★外框 Card★★★ -->
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeIn">
+        <div class="card-header bg-dark text-white d-flex align-items-center">
+            <i class="fa-solid fa-film me-2"></i>
+            <h4 class="mb-0">@Model.Movie?.MovieNameChinese</h4>
+        </div>
 
-<div>
-    <h4>ShowTime</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TheaterNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TheaterNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ShowDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ShowDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ShowTime1)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ShowTime1)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MovieId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MovieId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ScreenType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ScreenType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.ShowTimeId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <div class="card-body">
+            <!-- Responsive 描述清單 -->
+            <dl class="row gx-4 gy-2">
+                <dt class="col-md-3 fw-semibold text-secondary">影廳號碼</dt>
+                <dd class="col-md-9">@Model.TheaterNumber</dd>
+
+                <dt class="col-md-3 fw-semibold text-secondary">放映日期</dt>
+                <dd class="col-md-9">@Model.ShowDate</dd>
+
+                <dt class="col-md-3 fw-semibold text-secondary">電影編號</dt>
+                <dd class="col-md-9">@Model.MovieId</dd>
+
+                <dt class="col-md-3 fw-semibold text-secondary">銀幕格式</dt>
+                <dd class="col-md-9">@Model.ScreenType</dd>
+
+                <dt class="col-md-3 fw-semibold text-secondary">建立時間</dt>
+                <dd class="col-md-9">@Model.CreatedAt</dd>
+
+                <dt class="col-md-3 fw-semibold text-secondary">最後更新</dt>
+                <dd class="col-md-9">@Model.UpdatedAt</dd>
+            </dl>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-end gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.ShowTimeId"
+               class="btn btn-warning"><i class="fa-solid fa-pen-to-square me-1"></i> 編輯</a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fa-solid fa-list-ul me-1"></i> 回列表
+            </a>
+        </div>
+    </div>
 </div>
