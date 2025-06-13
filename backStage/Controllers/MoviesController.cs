@@ -73,39 +73,79 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MovieId,MovieNameChinese,MovieNameEnglish,MovieRatingId,Duration,ReleaseDate,EndDate,IsReleased,IsUpcoming,IsNowShowing,IsEnded,Director,Starring,Production,Distributor,Country,Plot,PosterPicture,TrailerUrl,ViewCount,BoxOffice")] Movie movie)
+        public async Task<IActionResult> Create(MovieGroup movieGroup, IFormFile ImageFile)
         {
-            if (ModelState.IsValid)
+            if (ImageFile != null && ImageFile.Length > 0)
             {
-                _context.Add(movie);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var ext = Path.GetExtension(ImageFile.FileName);
+                var fileName = Guid.NewGuid().ToString() + ext;
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/mg", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(stream);
+                }
+                movieGroup.GroupNote = "/images/mg/" + fileName;
             }
-            return View(movie);
+
+            _context.Add(movieGroup);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Movies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id, MovieGroup movieGroup, IFormFile ImageFile)
         {
-            if (id == null)
+            if (id != movieGroup.GroupId)
             {
                 return NotFound();
             }
 
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie == null)
+            // 查舊資料（保留舊圖片）
+            var oldGroup = await _context.MovieGroups.AsNoTracking().FirstOrDefaultAsync(m => m.GroupId == id);
+            if (oldGroup == null)
             {
                 return NotFound();
             }
 
-            ViewData["MovieRatingId"] = new SelectList(
-                _context.MovieRatings,
-                "MovieRatingId",
-                "FullName"
-            );
-            return View(movie);
+            // 有新圖片就存新檔案路徑（這裡要改 mg）
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(ImageFile.FileName);
+                var fileName = Guid.NewGuid().ToString() + ext;
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/mg", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(stream);
+                }
+                movieGroup.GroupNote = "/images/mg/" + fileName;
+            }
+            else
+            {
+                movieGroup.GroupNote = oldGroup.GroupNote;
+            }
+
+            try
+            {
+                _context.Update(movieGroup);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.MovieGroups.Any(e => e.GroupId == movieGroup.GroupId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
         }
-
         // POST: Movies/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
