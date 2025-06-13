@@ -51,13 +51,11 @@
                 <span asp-validation-for="MemberIntroSelf" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="MemberImgUpload" class="control-label"></label>
-                <input asp-for="MemberImgUpload" class="form-control" type="file" />
-                <span asp-validation-for="MemberImgUpload" class="text-danger"></span>
-                <div class="mt-2">
-                    <img src="@Url.Content("~/" + Model.MemberImg)" alt="會員圖片" width="120" class="img-thumbnail" />
-                    <div class="text-muted small">目前圖片路徑：@Model.MemberImg</div>
-                </div>
+                <label asp-for="MemberImg" class="control-label"></label>
+                <input asp-for="MemberImg" class="form-control" type="file" />
+                <span asp-validation-for="MemberImg" class="text-danger"></span>
+                <img src="@Model.MemberImg" alt="會員圖片" width="200" />
+             
 
             </div>
             <div class="form-group">

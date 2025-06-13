@@ -55,30 +55,31 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MemberId,MemberName,MemberPassword,MemberGender,MemberBirthDate,MemberEmail,MemberIntroSelf,MemberPermission")] Member member, IFormFile MemberImgUpload)
+        public async Task<IActionResult> Create(Member member, IFormFile ImageFile)
         {
-            if (ModelState.IsValid)
+            if (ImageFile != null && ImageFile.Length > 0)
             {
-                if (MemberImgUpload != null)
+                // 取得副檔名
+                var ext = Path.GetExtension(ImageFile.FileName);
+                // 產生唯一檔名（避免重複）
+                var fileName = Guid.NewGuid().ToString() + ext;
+                // 設定存檔路徑
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/img", fileName);
+
+                // 寫入檔案
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    // 處理圖片上傳
-                    var fileName = Path.GetFileName(MemberImgUpload.FileName);
-                    var filePath = Path.Combine("wwwroot/uploads", fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await MemberImgUpload.CopyToAsync(stream);
-                    }
-
-                    // 存入資料庫的圖片路徑
-                    member.MemberImg = "/images/img/memberimg/" + fileName;
+                    await ImageFile.CopyToAsync(stream);
                 }
-
-                _context.Add(member);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // 將圖片路徑存進 status 欄位
+                member.MemberImg = "/images/img/" + fileName;
             }
-            return View(member);
+
+            // 其他資料照舊
+            _context.Add(member);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Members/Edit/5
@@ -104,6 +105,7 @@ namespace backStage.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MemberId,MemberName,MemberPassword,MemberGender,MemberBirthDate,MemberEmail,MemberIntroSelf,MemberImg,MemberPermission")] Member member)
         {
+
             if (id != member.MemberId)
             {
                 return NotFound();
@@ -156,11 +158,20 @@ namespace backStage.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var member = await _context.Members.FindAsync(id);
-            if (member != null)
+            if (member == null)
             {
-                _context.Members.Remove(member);
+                return NotFound();
             }
-
+            if (!string.IsNullOrEmpty(member.MemberImg))
+            {
+                var fileName = member.MemberImg.Replace("/images/img/", "");
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/img", fileName);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            _context.Members.Remove(member);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
