@@ -17,7 +17,7 @@
 <hr />
 <div class="row scrollable-container">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="MemberId" />
             <div class="form-group">
@@ -50,14 +50,31 @@
                 <input asp-for="MemberIntroSelf" class="form-control" />
                 <span asp-validation-for="MemberIntroSelf" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="MemberImg" class="control-label"></label>
-                <input asp-for="MemberImg" class="form-control" type="file" />
-                <span asp-validation-for="MemberImg" class="text-danger"></span>
-                <img src="@Model.MemberImg" alt="會員圖片" width="200" />
-             
-
+            <div class="form-group mt-2">
+                <label class="control-label">活動照片</label>
+                @if (!string.IsNullOrEmpty(Model.MemberImg))
+                {
+                    @* <div style="margin-bottom:10px;">
+                        <img src="@Model.MemberImg" alt="目前活動圖片" style="max-width: 200px; max-height: 200px; border:1px solid #ccc;" />
+                    </div> *@
+                }
+                <input type="file" name="ImageFile" class="form-control" />
+                <input type="hidden" asp-for="MemberImg" />
             </div>
+
+            <!-- 圖片預覽 -->
+            <div class="form-group">
+                @if (!string.IsNullOrEmpty(Model.MemberImg))
+                {
+                    <img id="preview" src="@Model.MemberImg" alt="會員照片" style="max-width: 200px; margin-top: 10px;" />
+                }
+                else
+                {
+                    <img id="preview" src="#" alt="預覽圖" style="max-width: 200px; margin-top: 10px; display: none;" />
+                }
+            </div>
+
+           
             <div class="form-group">
                 <label asp-for="MemberPermission" class="control-label"></label>
                 <input asp-for="MemberPermission" class="form-control" />
@@ -69,6 +86,48 @@
         </form>
     </div>
 </div>
+
+    <script>
+        // 即時預覽功能
+    let formChanged = false;
+    // 即時預覽圖片
+    const fileInput = document.querySelector('input[type="file"][name="ImageFile"]');
+    const previewImg = document.getElementById('preview');
+
+    fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+
+     // 1. 監聽表單有沒有被修改
+     document.querySelectorAll('input, textarea, select').forEach(function(input) {
+         input.addEventListener('change', function() {
+             formChanged = true;
+         });
+     });
+
+     // 2. 監聽「回首頁」點擊
+     document.getElementById('goHome').addEventListener('click', function(event) {
+         if (formChanged) {
+             if (!confirm('資料尚未儲存，確定要離開嗎？')) {
+                 event.preventDefault(); // 取消跳頁
+             }
+         }
+     });
+
+     // 3. 儲存時（點擊 submit 按鈕），不再提醒
+     document.querySelector('form').addEventListener('submit', function() {
+         formChanged = false;
+     });
+    </script>
 
 <div>
     <a asp-action="Index">上一頁</a>

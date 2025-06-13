@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using backStage.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using backStage.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace backStage.Controllers
 {
@@ -103,36 +104,53 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MemberId,MemberName,MemberPassword,MemberGender,MemberBirthDate,MemberEmail,MemberIntroSelf,MemberImg,MemberPermission")] Member member)
+        public async Task<IActionResult> Edit(int id, Member member, IFormFile ImageFile)
         {
-
             if (id != member.MemberId)
-            {
                 return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(member);
+
+            // 取得舊的資料紀錄
+            var existingMember = await _context.Members.FindAsync(id);
+            if (existingMember == null)
+                return NotFound();
+
+            // 更新文字欄位
+            existingMember.MemberName = member.MemberName;
+            existingMember.MemberPassword = member.MemberPassword;
+            existingMember.MemberGender = member.MemberGender;
+            existingMember.MemberBirthDate = member.MemberBirthDate;
+            existingMember.MemberEmail = member.MemberEmail;
+            existingMember.MemberIntroSelf = member.MemberIntroSelf;
+            existingMember.MemberPermission = member.MemberPermission;
+
+            // 處理圖片上傳
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(ImageFile.FileName)}";
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                var filePath = Path.Combine(uploadPath, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(stream);
+                }
+
+                // 儲存相對路徑到資料庫欄位
+                existingMember.MemberImg = $"/uploads/{fileName}";
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(member);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MemberExists(member.MemberId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(member);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
+
+
+
 
         // GET: Members/Delete/5
         public async Task<IActionResult> Delete(int? id)
