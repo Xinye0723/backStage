@@ -28,21 +28,21 @@ namespace backStage.Controllers
         [HttpGet]
         public async Task<IActionResult> GetShowTimes(DateOnly? weekStart)
         {
-            // 如果前端沒給，預設取本週一
             var start = weekStart ?? DateOnly.FromDateTime(DateTime.Today).AddDays(-(int)DateTime.Today.DayOfWeek + 1);
             var end = start.AddDays(7);
 
             var data = await _context.ShowTimes
-                .Include(s => s.Movie)                     // 想帶電影名稱就 Include
-                .Where(s => s.ShowDate >= start && s.ShowDate < end)
-                .Select(s => new
+                .Include(st => st.Movie)
+                /* 這一行改成「兩邊都用 DateOnly」-------------★ */
+                .Where(st => DateOnly.FromDateTime(st.CreatedAt) >= start &&
+                             DateOnly.FromDateTime(st.CreatedAt) < end)
+                .Select(st => new
                 {
-                    id = s.ShowTimeId,
-                    text = s.Movie.MovieNameChinese,
-                    // ✅ 24h + ISO yyyy-MM-ddTHH:mm:ss
-                    start = $"{s.ShowDate:yyyy-MM-dd}T{s.ShowTime1:HH\\:mm}:00",
-                    end = $"{s.ShowDate:yyyy-MM-dd}T{s.ShowTime1.AddMinutes(s.Movie.Duration):HH\\:mm}:00",
-                    resource = s.TheaterNumber.ToString()
+                    id = st.ShowTimeId,
+                    text = st.Movie.MovieNameChinese,
+                    start = st.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = st.UpdatedAt.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    resource = st.TheaterNumber.ToString()
                 })
                 .ToListAsync();
 
@@ -64,8 +64,21 @@ namespace backStage.Controllers
 
         /* ---------- 儲存場次 ---------- */
         [HttpPost]
+        private static DateTime ParseDateTime(string date, string time)
+        {
+            // time 可能是 "00:00" 或 "2025-06-08T00:00:00"
+            if (time.Contains('T'))
+                time = time.Split('T')[1][..5];   // 只留 HH:mm
+
+            // date 也可能被誤傳成完整 ISO，再切一次保險
+            if (date.Contains('T'))
+                date = date.Split('T')[0];        // yyyy-MM-dd
+
+            return DateTime.Parse($"{date} {time}");   // yyyy-MM-dd HH:mm
+        }
         public async Task<IActionResult> Save([FromBody] SaveDto dto)
         {
+
             /* ---------- 0. 整週清空 ---------- */
             if (dto.Events.Count == 0)
             {
@@ -100,44 +113,36 @@ namespace backStage.Controllers
             /* ---------- B. 新增／更新 ---------- */
             foreach (var e in dto.Events)
             {
-                /* 1. 找電影 */
-                var movie = await _context.Movies
-                                          .FirstOrDefaultAsync(m => m.MovieNameChinese == e.MovieName);
-                if (movie is null)
-                    return StatusCode(422, $"電影「{e.MovieName}」未上架");
 
-                /* 2. 型別轉換 */
-                var date = DateOnly.Parse(e.ShowDate);
-                var start = TimeOnly.Parse(e.TimeStart);
-                var end = TimeOnly.Parse(e.TimeEnd);
+                var movie = await _context.Movies.FirstOrDefaultAsync(m => m.MovieNameChinese == e.MovieName);
+                if (movie is null) return StatusCode(422, $"電影「{e.MovieName}」未上架");
 
-                if (e.Id > 0)                                   // 已存在 → UPDATE
+                var startDt = ParseDateTime(e.ShowDate, e.TimeStart);
+                var endDt = ParseDateTime(e.ShowDate, e.TimeEnd);
+
+                if (e.Id > 0)          // UPDATE
                 {
                     var st = await _context.ShowTimes.FindAsync(e.Id);
-                    if (st is null) continue;                   // 理論上不會有
+                    if (st is null) continue;
 
                     st.TheaterNumber = e.TheaterNumber;
-                    st.ShowDate = date;
-                    st.ShowTime1 = start;
                     st.MovieId = movie.MovieId;
-                    st.UpdatedAt = date.ToDateTime(end);    // .NET 6 才有 ToDateTime
-                    _context.Entry(st).State = EntityState.Modified; // 明示更新（保險）
+                    st.CreatedAt = startDt;
+                    st.UpdatedAt = endDt;
                 }
-                else                                            // 全新 → ADD
+                else                   // ADD
                 {
                     _context.ShowTimes.Add(new ShowTime
                     {
                         TheaterNumber = e.TheaterNumber,
-                        ShowDate = date,
-                        ShowTime1 = start,
                         MovieId = movie.MovieId,
+                        CreatedAt = startDt,
+                        UpdatedAt = endDt,
                         ScreenType = "一般廳",
-                        CreatedAt = date.ToDateTime(start),
-                        UpdatedAt = date.ToDateTime(end)
+                        ShowDate = DateOnly.FromDateTime(startDt)   // 若還想保留 ShowDate 欄位
                     });
                 }
             }
-
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -235,43 +240,31 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, ShowTime vm)
         {
-            var dbItem = await _context.ShowTimes.FindAsync(id);
-            if (dbItem == null) return NotFound();
+            if (id != vm.ShowTimeId) return BadRequest();
 
-            // 只把允許修改的欄位貼進既有實體，可避免意外覆蓋
-            if (await TryUpdateModelAsync(dbItem, "",
-                    st => st.TheaterNumber,
-                    st => st.ShowDate,
-                    st => st.MovieId,
-                    st => st.ScreenType,
-                    st => st.UpdatedAt))
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            var entity = await _context.ShowTimes.FindAsync(id);
+            if (entity is null) return NotFound();
 
-            // TryUpdate 失敗 → 把驗證訊息帶回畫面
-            return View(dbItem);
-        }
+            /* 1. 找出最終電影 (可能換片) 取得片長 */
+            var movie = await _context.Movies.FindAsync(vm.MovieId);
+            if (movie is null)
+                return StatusCode(422, "找不到對應電影");
 
-        // GET: ShowTimes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            /* 2. 更新欄位（完全不碰 ShowTime1） */
+            entity.TheaterNumber = vm.TheaterNumber;
+            entity.MovieId = vm.MovieId;
+            entity.ScreenType = vm.ScreenType;
 
-            var showTime = await _context.ShowTimes
-                .FirstOrDefaultAsync(m => m.ShowTimeId == id);
-            if (showTime == null)
-            {
-                return NotFound();
-            }
+            /* ★ 3. 開始時間來自表單；結束時間 = 開始 + 片長 */
+            entity.CreatedAt = vm.CreatedAt;                       // 開始
+            entity.UpdatedAt = vm.CreatedAt.AddMinutes(movie.Duration); // 結束
+            entity.ShowDate = DateOnly.FromDateTime(entity.CreatedAt); // 若仍需保留
 
-            return View(showTime);
+            await _context.SaveChangesAsync();
+            TempData["success"] = "場次已更新！";
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: ShowTimes/Delete/5

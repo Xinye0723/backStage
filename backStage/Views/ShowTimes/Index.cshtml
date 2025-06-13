@@ -36,23 +36,22 @@
             margin-bottom: .5rem; /* 與表頭的縫隙 */
             margin-right: 3px; /* 與卡片右邊框的距離 */
         }
+
         #moviesTable td:nth-child(2) {
-             max-width: 250px;
+            max-width: 250px;
             white-space: normal;
             word-break: break-word;
-                
         }
+
         .scheduler_default_event_delete {
-            opacity: 1 !important;         /* Hover 時預設 0 → 1；直接設 1 */
+            opacity: 1 !important; /* Hover 時預設 0 → 1；直接設 1 */
         }
+
         @@media(max - width:576px) {
-            #moviesTable td,#moviesTable th
-
-        {
-            font-size: 14px;
-            padding: 8px;
-        }
-
+            #moviesTable td, #moviesTable th {
+                font-size: 14px;
+                padding: 8px;
+            }
         }
     </style>
 }
@@ -102,10 +101,17 @@
 
     <!-- ⑤ 核心腳本（ES Module） -->
     <script type="module">
+                // ShowTimes Scheduler Front‑End (DayPilot Lite + SweetAlert2 + DataTables)
+        // ---------------------------------------------------------------
+        // ● 右上「×」即時刪除並記錄待刪 Id
+        // ● 儲存時送出 events + deleteIds；後端先刪再整批寫入
+        // ● 拖拉新增事件依片長向上補足 5 分鐘區格
+        // ---------------------------------------------------------------
+
         /* ========= 全域狀態 ========= */
         const weekStartStr = DayPilot.Date.today().firstDayOfWeek().toString("yyyy-MM-dd");
-        const moviesMap    = new Map();     // 片名 → 片長 (分鐘)
-        const deletedIds   = new Set();     // 已入庫待刪 Id
+        const moviesMap    = new Map();   // 片名 → 片長 (分鐘)
+        const deletedIds   = new Set();   // 已入庫待刪 Id
 
         /* ========= 初始化 ========= */
         (async () => {
@@ -119,7 +125,7 @@
             days: 7,
             startDate: weekStartStr,
             eventHeight: 40,
-            showEventDeleteButtons: true,          // ★ 一定要 true，才有「×」按鈕
+            showEventDeleteButtons: true,   // 必須 true 才會產生「×」
 
             timeHeaders: [
               {
@@ -133,19 +139,19 @@
               { groupBy: "Cell", format: "mm" }
             ],
 
-            /* --- 右鍵選單 --- */
+            /* --- 右鍵選單：跳轉詳情 --- */
             eventRightClickHandling: "ContextMenu",
             contextMenu: new DayPilot.Menu([
               {
-                text: "編輯",
+                text: "詳情",
                 onClick: args => {
-                  const id = args.source.id();        // ShowTimeId
+                  const id = args.source.id();
                   window.location.href = `/ShowTimes/Details/${id}`;
                 }
               }
             ]),
 
-            /* --- 拖拉建立新事件 --- */
+            /* --- 拖拉建立事件 --- */
             timeRangeSelectedHandling: "Enabled",
             onTimeRangeSelected: async a => {
               const name = (await DayPilot.Modal.prompt("請輸入場次名稱：", "")).result?.trim();
@@ -153,25 +159,24 @@
               if (!name) return;
 
               const dur     = moviesMap.get(name) ?? 0;
-              const rounded = Math.ceil(dur / 5) * 5 || 5;     // 向上取 5 分倍數
+              const rounded = Math.ceil(dur / 5) * 5 || 5;   // 向上取 5 分
               const end     = a.start.addMinutes(rounded);
 
               dp.events.add({ id: DayPilot.guid(), start: a.start, end, resource: a.resource, text: name });
             },
 
-            /* --- × 刪除 --- */
+            /* --- × 刪除事件 --- */
             eventDeleteHandling: "Update",
             onEventDeleted: args => {
-            const idNum = Number(args.e.id());      // 先抓 Id（id() 才是字串）
-            if (!Number.isNaN(idNum)) deletedIds.add(idNum);
-
-            dp.events.remove(args.e.id());
+              const idNum = Number(args.e.id());     // 先拿主鍵
+              if (!Number.isNaN(idNum)) deletedIds.add(idNum);
+              dp.events.remove(args.e.id());         // 再從 list + UI 移除
             }
           });
           dp.init();
 
-          /* 方便 Console 除錯 */
-          window.dp         = dp;
+          // 方便 Console 除錯
+          window.dp = dp;
           window.deletedIds = deletedIds;
 
           /* 初次載入資料 */
@@ -181,21 +186,20 @@
           /* 儲存按鈕 */
           document.getElementById("btnSaveShowTimes")
                   .addEventListener("click", () => saveAll(dp));
+        })();
 
-        })(); // IIFE
-
-        /* ========= 載入影廳/場次 ========= */
+        /* ========= 載入影廳 / 本週場次 ========= */
         async function loadSchedulerData(dp) {
           const [resources, events] = await Promise.all([
             fetch("/ShowTimes/GetTheaters").then(r => r.json()),
             fetch(`/ShowTimes/GetShowTimes?weekStart=${weekStartStr}`).then(r => r.json())
           ]);
-          dp.events.list = [];                   // 清空舊事件，避免重複
+          dp.events.list = [];            // 避免重複
           dp.update({ resources, events });
           deletedIds.clear();
         }
 
-        /* ========= 載入已上映電影(DataTable) ========= */
+        /* ========= 載入已上映電影（DataTable） ========= */
         async function loadReleasedMovies() {
           const movies = await fetch("/Movies/GetReleasedMovies").then(r => r.json());
           moviesMap.clear();
@@ -206,9 +210,7 @@
             `<tr><td>${m.movieNameChinese}</td><td>${m.movieNameEnglish}</td><td>${m.releaseDate}</td><td>${m.duration}</td></tr>`
           ).join("");
 
-          if ($.fn.DataTable.isDataTable("#moviesTable")) {
-            $("#moviesTable").DataTable().destroy();
-          }
+          if ($.fn.DataTable.isDataTable("#moviesTable")) $("#moviesTable").DataTable().destroy();
           $("#moviesTable").DataTable({
             language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json" }
           });
@@ -216,7 +218,7 @@
 
         /* ========= 儲存 (整批覆蓋) ========= */
         async function saveAll(dp) {
-          /* --- 時間重疊檢查 (允許銜接) --- */
+          // 1. 時間重疊檢查（允許銜接）
           const byHall = {};
           for (const ev of dp.events.list) (byHall[ev.resource] ??= []).push(ev);
           for (const hall in byHall) {
@@ -229,23 +231,23 @@
             }
           }
 
-          /* --- 組 payload --- */
-          const payload = {
-        weekStart: weekStartStr,
-          events: dp.events.list
-                  .filter(ev => !deletedIds.has(Number(ev.id)))   // ← 新增這行
-                  .map(ev => ({
-                    id:            Number(ev.id) || 0,
-                    theaterNumber: +ev.resource,
-                    showDate:  ev.start.toString("yyyy-MM-dd"),
-                    timeStart: ev.start.toString("HH:mm"),
-                    timeEnd:   ev.end.toString("HH:mm"),
-                    movieName: ev.text
-                  })),
-          deleteIds: [...deletedIds]
+          // 2. 組 payload
+                  const payload = {
+          weekStart : weekStartStr,
+          events    : dp.events.list
+                        .filter(ev => !deletedIds.has(Number(ev.id)))
+                        .map(ev => ({
+                          id           : Number(ev.id) || 0,
+                          theaterNumber: +ev.resource,
+                          showDate     : ev.start.toString("yyyy-MM-dd"),
+                          timeStart : ev.start.toString("HH:mm"),   // CreatedAt 用這兩個組
+                          timeEnd   : ev.end  .toString("HH:mm"),     // UpdatedAt 用這兩個組
+                          movieName    : ev.text
+                        })),
+          deleteIds : [...deletedIds]
         };
 
-          /* 空 events → 確認清空 */
+          // 3. 空 events → 確認清空
           if (payload.events.length === 0) {
             const ok = await Swal.fire({
               icon: "question",
@@ -257,7 +259,7 @@
             if (!ok.isConfirmed) return;
           }
 
-          /* --- 送到後端 --- */
+          // 4. 送到後端
           const res = await fetch("/ShowTimes/Save", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -271,6 +273,7 @@
             Swal.fire("儲存失敗", await res.text(), "error");
           }
         }
+
     </script>
 }
 

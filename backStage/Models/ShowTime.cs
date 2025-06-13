@@ -23,7 +23,6 @@ public partial class ShowTime
     [Display(Name = "播映起始時間")]
     public DateTime CreatedAt { get; set; }
     [Display(Name = "播映結束時間")]
-
     public DateTime UpdatedAt { get; set; }
 
     public virtual ICollection<SeatStatus> SeatStatuses { get; set; } = new List<SeatStatus>();
