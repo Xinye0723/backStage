@@ -74,7 +74,38 @@
         .forgot-password {
             margin-bottom: 20px; /* 增加與登入按鈕的距離 */
         }
+        /* 關鍵影格：前後景深／字距收縮的進場動畫 */
+@@-webkit-keyframes focus-in-contract-bck {
+  0% {
+    letter-spacing: 1em;          /* 字距超寬 */
+    -webkit-transform: translateZ(300px);
+            transform: translateZ(300px); /* 從鏡頭前方推回 */
+    filter: blur(12px);
+    opacity: 0;
+  }
+  100% {
+    letter-spacing: normal;
+    -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
 
+@@keyframes focus-in-contract-bck {
+  0% {
+    letter-spacing: 1em;
+    transform: translateZ(300px);
+    filter: blur(12px);
+    opacity: 0;
+  }
+  100% {
+    letter-spacing: normal;
+    transform: translateZ(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
     </style>
 </head>
 <body>

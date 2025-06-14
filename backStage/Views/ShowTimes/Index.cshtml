@@ -139,17 +139,23 @@
               { groupBy: "Cell", format: "mm" }
             ],
 
-            /* --- 右鍵選單：跳轉詳情 --- */
-            eventRightClickHandling: "ContextMenu",
-            contextMenu: new DayPilot.Menu([
-              {
-                text: "詳情",
-                onClick: args => {
-                  const id = args.source.id();
-                  window.location.href = `/ShowTimes/Details/${id}`;
-                }
-              }
-            ]),
+                    /* --- 右鍵選單：跳轉詳情（新增防呆） --- */
+        eventRightClickHandling: "ContextMenu",
+        contextMenu: new DayPilot.Menu([{
+          text: "詳情／編輯",
+          onClick: args => {
+            const id = args.source.id();          // DayPilot 的 id() 一定是字串
+            if (Number.isNaN(Number(id))) {       // 不是純數字 ⇒ 尚未入庫
+              Swal.fire({
+                icon: "info",
+                title: "請先儲存場次，再進行編輯！",
+              });
+              return;                             // 直接中斷
+            }
+            // ✅ 已入庫才可跳轉
+            window.location.href = `/ShowTimes/Details/${id}`;
+          }
+        }]),
 
             /* --- 拖拉建立事件 --- */
             timeRangeSelectedHandling: "Enabled",

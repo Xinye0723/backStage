@@ -1,4 +1,5 @@
-﻿using backStage.Data;
+﻿using backStage;
+using backStage.Data;
 using backStage.Models;
 
 using Microsoft.AspNetCore.Identity;
@@ -34,7 +35,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(o => o.SignIn.RequireConfirmed
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<backStage.Services.IBoxOfficeService,
+                           backStage.Services.BoxOfficeService>();
 var app = builder.Build();
 
 // ──────── 2. Middleware 區 ────────

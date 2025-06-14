@@ -1,0 +1,118 @@
+﻿@using Newtonsoft.Json
+@model IReadOnlyList<backStage.Models.BoxOfficeYearVM>
+
+@{
+    Layout = "_Layout";
+
+    /* ===== 取前 20 名票房 ===== */
+    int topN = 20;
+    var rankList = Model.Take(topN)
+                        .Select((m, idx) => new { Rank = idx + 1, m.Movie, m.YearSum })
+                        .ToList();
+
+    /* ECharts 需要的兩組陣列 */
+    var names = rankList.Select(x => x.Movie).ToList();
+    var totals = rankList.Select(x => x.YearSum).ToList();
+}
+
+<h2 class="text-center mt-3">@ViewBag.Year 年度累計票房 TOP @topN</h2>
+
+<div class="container-fluid">
+    <div class="d-flex flex-column gap-5">
+
+        <!-- ===== 長條圖 ===== -->
+        <section>
+            <h4 class="fw-bold mb-3">長條圖</h4>
+            <div id="chart" style="height:600px;width:100%;"></div>
+        </section>
+
+        <!-- ===== 票房排行榜 ===== -->
+        <section>
+            <h4 class="fw-bold mb-3">票房排行榜</h4>
+            <div style="max-height:600px;overflow:auto;">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light align-middle text-center">
+                        <tr>
+                            <th style="width:80px;">排名</th>
+                            <th>片名</th>
+                            <th class="text-end" style="width:200px;">累計票房 (NT$)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle">
+                        @foreach (var item in rankList)
+                        {
+                            <tr>
+                                <td class="text-center fw-semibold">@item.Rank</td>
+                                <td>@item.Movie</td>
+                                <td class="text-end">@item.YearSum.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+
+<!-- ECharts CDN -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+    /* ---------- 把 C# List 轉 JS 陣列 ---------- */
+    const names  = @Html.Raw(JsonConvert.SerializeObject(names));
+    const totals = @Html.Raw(JsonConvert.SerializeObject(totals));
+
+    const chart = echarts.init(document.getElementById('chart'));
+
+    chart.setOption({
+        /* ① 座標系佈局 —— 左邊 60px 並開 containLabel，避免文字被切 */
+        grid:{
+            left: 60,
+            right: 20,
+            top: 50,
+            bottom: 110,
+            containLabel: true
+        },
+
+        /* ② Tooltip */
+        tooltip:{
+            trigger: 'axis',
+            axisPointer:{ type:'shadow' },
+            formatter: p => `${p[0].name}<br/>累計票房：${p[0].value.toLocaleString()} 元`
+        },
+
+        /* ③ X 軸設定 */
+        xAxis:{
+            type: 'category',
+            data: names,
+            axisLabel:{
+                interval: 0,
+                rotate: 45,
+                margin: 14,
+                align: 'right',
+                formatter: v => v.length > 10 ? v.slice(0,10) + '…' : v
+            }
+        },
+
+        /* ④ Y 軸設定 */
+        yAxis:{
+            type: 'value',
+            name: '累計票房 (NT$)'
+        },
+
+        /* ⑤ 資料列 */
+        series:[{
+            type: 'bar',
+            data: totals,
+            barMaxWidth: 40,
+            itemStyle:{
+                color: '#2f3e46',          // 你想要的柱子顏色
+                borderRadius: [5,5,0,0]
+            }
+        }]
+    });
+
+    /* ⑥ 讓圖表隨視窗大小自適應 */
+    window.addEventListener('resize', () => chart.resize());
+</script>

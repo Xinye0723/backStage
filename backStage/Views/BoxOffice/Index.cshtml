@@ -1,45 +1,89 @@
-﻿@model List<dynamic>
+﻿@model IReadOnlyList<backStage.Models.BoxOfficeYearVM>
 
 @{
-    ViewData["Title"] = "台灣票房排行";
-    var movieNames = Model.Select(m => m.MovieName).ToList();
-    var boxOffices = Model.Select(m => Convert.ToDouble(m.BoxOffice)).ToList();
+    Layout = "_Layout";                // ← 你的共用 Layout，若不同請自行替換
+    int topN = 15;
+    var names = Model.Take(topN).Select(m => m.Movie).ToList();
+    var totals = Model.Take(topN).Select(m => m.YearSum).ToList();
 }
 
-<h2 class="text-center">全台票房排行 Top 10</h2>
+<h2 class="text-center mt-5">@ViewBag.Year 年度累計票房 Top @topN</h2>
 
-<div id="chart" style="width:100%; height:500px;"></div>
+<div class="container-fluid">
+    <div class="d-flex flex-column flex-lg-row gap-4">
+        <!-- 右：ECharts -->
+        <div class="flex-fill">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white text-center">
+                </div>
+                <div class="card-body p-0">
+                    <div id="chart" style="height:600px;width:100%;"></div>
+                </div>
+            </div>
+        </div>
+        <!-- 左：表格 -->
+        <div class="flex-fill">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white text-center">
+                    
+                </div>
+                <div class="card-body p-0" style="max-height:600px;overflow:auto;">
+                    
+                </div>
+            </div>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<script>
-    var chartDom = document.getElementById('chart');
-    var myChart = echarts.init(chartDom);
+        
 
-    var option = {
-        title: {
-            text: '全台票房前10名',
-            left: 'center'
-        },
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'shadow'
+    </div>
+</div>
+
+@section Scripts{
+    <!-- ECharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script>
+        const names  = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(names));
+        const totals = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(totals));
+
+        const chart = echarts.init(document.getElementById('chart'));
+
+        chart.setOption({
+          grid:{                    // ↓ 1. 加大底部留白
+            left:40, right:20, top:50, bottom:110
+          },
+          tooltip:{
+            trigger:'axis',
+            axisPointer:{ type:'shadow' },
+            formatter: params => {
+               const item = params[0];
+               return `${item.name}<br/>累計票房：${item.value.toLocaleString()} 元`;
             }
-        },
-        xAxis: {
-            type: 'category',
-            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(movieNames))
-        },
-        yAxis: {
-            type: 'value',
-            name: '票房 (元)'
-        },
-        series: [{
-            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(boxOffices)),
-            type: 'bar'
-        }]
-    };
+          },
+          xAxis:{
+            type:'category',
+            data:names,
+            axisLabel:{
+              interval:0,
+              rotate:45,            // 有需要可改 30 或 0
+              margin:14,            // ↓ 2. 給一點外距，避免貼到軸線
+              align:'right',
+              formatter: val => {
+                const max = 10;
+                return val.length > max ? val.slice(0,max) + '…' : val;
+              }
+            }
+          },
+          yAxis:{ type:'value', name:'累計票房 (NT$)' },
+          series:[{
+              type:'bar',
+              data:totals,
+              barMaxWidth:40,
+              itemStyle:{ borderRadius:[5,5,0,0] }
+          }]
+        });
 
-    myChart.setOption(option);
-</script>
+        window.addEventListener('resize', () => chart.resize());
+    </script>
+}
+
 
