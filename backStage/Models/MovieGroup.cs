@@ -12,7 +12,7 @@ public partial class MovieGroup
     [Display(Name = "電影id")]
     public int MovieId { get; set; }
 
-    [Display(Name = "放映時間id")]
+    [Display(Name = "場次ID")]
     public int ShowTimeId { get; set; }
 
     [Display(Name = "活動名稱")]
