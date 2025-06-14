@@ -4,10 +4,9 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>選取</h1>
+<h1 class="mt-2">員工資料</h1>
 
 <div>
-    <h4>員工</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -43,6 +42,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.StaffId">編輯</a> |
-    <a asp-action="Index">上一頁</a>
+    <a class="btn btn-warning" asp-action ="Edit" asp-route-id="@Model?.StaffId">編輯</a>
+    <a asp-action="Index" id="goHome" class="btn btn-secondary ms-3">回首頁</a>
 </div>

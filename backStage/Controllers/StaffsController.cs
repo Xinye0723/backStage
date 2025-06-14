@@ -21,25 +21,30 @@ namespace backStage.Controllers
         {
             return View();
         }
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string username, string password)
         {
-            // 明文帳密比對（無雜湊）
             var staff = await _context.Staff
                          .FirstOrDefaultAsync(s => s.StaffName == username &&
                                                    s.StaffPassword == password);
 
             if (staff != null)
             {
-                // TODO：寫入 Cookie 或 Session，如：
-                // HttpContext.Session.SetInt32("StaffId", staff.StaffId);
-                return RedirectToAction("Index", "Home");
+                // ① 存登入者資料
+                HttpContext.Session.SetInt32("StaffId", staff.StaffId);
+                HttpContext.Session.SetString("StaffName", staff.StaffName);
+
+                return RedirectToAction("Index", "Movies");
             }
 
             ViewBag.ErrorMessage = "帳號或密碼錯誤";
             return View();
         }
-
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();   // 清掉全部 Session
+            return RedirectToAction("Login");
+        }
         /* ---------- CRUD ---------- */
 
         // GET: Staffs

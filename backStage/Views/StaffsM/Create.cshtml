@@ -4,9 +4,7 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>新增</h1>
-
-<h4>Staff</h4>
+<h1 class="mt-2">新增員工</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -42,16 +40,16 @@
                 <input asp-for="StaffPassword" class="form-control" />
                 <span asp-validation-for="StaffPassword" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="新建" class="btn btn-primary" />
+            <div class="form-group mt-3">
+                <input type="submit" value="新建" class="btn btn-success" />
+                <a asp-action="Index" id="goHome" class="btn btn-secondary ms-3">回首頁</a>
             </div>
+            
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">上一頁</a>
-</div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

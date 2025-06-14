@@ -4,9 +4,7 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>編輯</h1>
-
-<h4>Staff</h4>
+<h1 class ="mt-2">編輯員工</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -38,15 +36,12 @@
                 <input asp-for="StaffPassword" class="form-control" />
                 <span asp-validation-for="StaffPassword" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="儲存" class="btn btn-primary" />
+            <div class="form-group mt-3">
+                <input type="submit" value="儲存" class="btn btn-warning" />
+                <a asp-action="Index" id="goHome" class="btn btn-secondary ms-3">回首頁</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">上一頁</a>
 </div>
 
 @section Scripts {

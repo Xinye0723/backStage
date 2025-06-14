@@ -1,58 +1,126 @@
 ﻿@model IEnumerable<backStage.Models.Staff>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "員工管理";
 }
 
-<h1>員工管理</h1>
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+    
 
-<p>
-    <a asp-action="Create">新增</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.StaffName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StaffPhone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StaffEmail)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StaffPermission)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StaffPassword)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.StaffName)
-            </td>
-                <td>@string.Format("0{0}", item.StaffPhone)</td>
+    <style>
+        table.dataTable > thead th,
+        table.dataTable > tbody td {
+            text-align: center;
+        }
+        /* ===== DataTables length ↓  較長數字也不會被截掉 ===== */
+        .dataTables_wrapper .dataTables_length .form-select {
+            /* 讓寬度跟著內容伸縮，但又不至於太窄或太寬 */
+            width: auto; /* 依內容自動 */
+            min-width: 7ch; /* 能放下 3 位數 (100) + 箭頭 */
+            max-width: 12ch; /* 預防 4 位數以上撐破版面 */
+            /* 內距：右側多留空間給箭頭，文字才不會被蓋到 */
+            padding: .25rem 2.3rem .25rem .8rem;
+            /* 字置中，看起來比較對齊 */
+            text-align: center;
+            /* 調整箭頭（background-image）的相對位置 */
+            background-position: right .7rem center;
+        }
 
-            <td>
-                @Html.DisplayFor(modelItem => item.StaffEmail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StaffPermission)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StaffPassword)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.StaffId">編輯</a> |
-                <a asp-action="Details" asp-route-id="@item.StaffId">選取</a> |
-                <a asp-action="Delete" asp-route-id="@item.StaffId">刪除</a>
-            </td>
-        </tr>
+        /* 行動裝置：如果字體再縮小一些，就把 min-width 略放大 */
+    @@media (max-width: 576px) {
+            .dataTables_wrapper .dataTables_length .form-select
+
+        {
+            min-width: 8ch;
+        }
+
+        }
+
+        </style >
 }
-    </tbody>
-</table>
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12" style="max-width: 1600px;">
+            <div class="card shadow-sm">
+                
+                    <div class="ms-3 mt-3">
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="fa-solid fa-user-plus me-1"></i>新增員工
+                    </a>
+                    </div>
+
+                <div class="card-body">
+                    <table id="staffTable"
+                           class="table table-bordered table-striped mb-0 text-center"
+                           style="width:100%;">
+                        <thead class="table-active ">
+                            <tr>
+                                <th>@Html.DisplayNameFor(m => m.First().StaffName)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().StaffPhone)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().StaffEmail)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().StaffPermission)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().StaffPassword)</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.StaffName</td>
+                                    <td>@($"0{item.StaffPhone}")</td>
+                                    <td>@item.StaffEmail</td>
+                                    <td>@item.StaffPermission</td>
+                                    <td>@item.StaffPassword</td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.StaffId"
+                                           class="btn btn-sm btn-warning me-1" title="編輯">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.StaffId"
+                                           class="btn btn-sm btn-info me-1 text-white" title="詳細">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.StaffId"
+                                           class="btn btn-sm btn-danger" title="刪除">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div> <!-- /card-body -->
+            </div> <!-- /card -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- ② DataTables -->
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(function () {
+            $('#staffTable').DataTable({
+                // 語系檔 – 繁中
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json'
+                },
+                responsive: true,
+                autoWidth: false,
+                columnDefs: [
+                    { orderable: false, targets: -1 } // 操作欄取消排序
+                ],
+                // 預設由第一欄（姓名）排序
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}

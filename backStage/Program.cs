@@ -5,34 +5,45 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-var movieconnectionString = builder.Configuration.GetConnectionString("movie");
-builder.Services.AddDbContext<MovieContext>(options =>
+// ──────── 1.  DI 區 ────────
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                      ?? throw new InvalidOperationException("找不到連線字串 DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(opt =>
+    opt.UseSqlServer(connectionString));
+
+builder.Services.AddDbContext<MovieContext>(opt =>
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("movie")));
+
+// ? 先註冊 Distributed Memory Cache（Session 需要）
+builder.Services.AddDistributedMemoryCache();
+
+// ? Session 服務
+builder.Services.AddSession(opt =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("movie"));
+    opt.IdleTimeout = TimeSpan.FromMinutes(30);
+    opt.Cookie.HttpOnly = true;
+    opt.Cookie.IsEssential = true;
 });
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+// 如果 Razor / Controller 需要注入 HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddDefaultIdentity<IdentityUser>(o => o.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddControllersWithViews();
-
-
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ──────── 2. Middleware 區 ────────
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
+    app.UseDeveloperExceptionPage();
 }
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -41,11 +52,17 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// ? 如果有 Identity，先驗證身分
+app.UseAuthentication();
+
+// ? 啟用 Session  (一定要在 Authorization 之前)
+app.UseSession();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Staffs}/{action=Login}/{id?}");
 app.MapRazorPages();
 
 app.Run();

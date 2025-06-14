@@ -1,14 +1,31 @@
-﻿<nav class="app-header navbar navbar-expand bg-body">
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpCtx
+@{
+    string? staffName = HttpCtx.HttpContext?.Session.GetString("StaffName");
+}
+<nav class="app-header navbar navbar-expand bg-body">
     <div class="container-fluid">
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" data-lte-toggle="sidebar" href="#"><i class="fa-solid fa-bars"></i></a>
             </li>
-            <li class="nav-item d-none d-md-inline"><a class="nav-link" href="#">Home</a></li>
-            <li class="nav-item d-none d-md-inline"><a class="nav-link" href="#">Contact</a></li>
+            @* <li class="nav-item d-none d-md-inline"><a class="nav-link" href="#">Home</a></li>
+            <li class="nav-item d-none d-md-inline"><a class="nav-link" href="#">Contact</a></li> *@
         </ul>
-        <ul class="navbar-nav ms-auto me-2">
-            <li class="nav-item"><i class="fa-solid fa-arrow-right-from-bracket"></i></li>
+        <ul class="navbar-nav ms-auto me-2 align-items-center">
+            @* 只有登入後才顯示 *@
+            @if (!string.IsNullOrEmpty(staffName))
+            {
+                <li class="nav-item me-2">
+                    <span class="navbar-text fw-semibold">歡迎&nbsp;@staffName</span>
+                </li>
+            }
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Staffs" asp-action="Logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
+            </li>
         </ul>
     </div>
 </nav>
