@@ -42,19 +42,38 @@ namespace backStage.Controllers
             var movies = await _context.Movies
                 .Include(m => m.MovieRating)
                 .ToListAsync();
-            return View(_context.Movies);
+            return View(movies);
         }
 
-        //// GET: Movies/GetPosterPicture/5
-        //public async Task<FileResult> GetPosterPicture(int id)
-        //{
-        //    var Movie = await _context.Movies.Find(id);
-        //    if (Movie == null || Movie.PosterPicture == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return File(Movie.PosterPicture, "image/jpeg");
-        //}
+        // GET: Movies/GetPosterPicture
+        [HttpGet]
+        public IActionResult GetPosterPicture(int id)
+        {
+            var movie = _context.Movies.Find(id);
+            string imagePath;
+
+            if (movie == null || string.IsNullOrEmpty(movie.PosterPicture))
+            {
+                // 直接用 no-image 路徑
+                imagePath = Path.Combine(Directory.GetCurrentDirectory(), 
+                    "wwwroot", "images", "posterPicture", "no-image.jpg");
+            }
+
+            else
+            {
+                imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "posterPicture", movie.PosterPicture);
+
+                if (!System.IO.File.Exists(imagePath))
+                {
+                    // 找不到檔案也用 no-image
+                    imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "no-image.jpg");
+                }
+            }
+
+            var contentType = "image/jpeg"; // 或根據副檔名改判斷
+            var fileBytes = System.IO.File.ReadAllBytes(imagePath);
+            return File(fileBytes, contentType);
+        }
 
         // GET: Movies/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -95,21 +114,28 @@ namespace backStage.Controllers
         {
             if (ImageFile != null && ImageFile.Length > 0)
             {
-                var ext = Path.GetExtension(ImageFile.FileName);
-                var fileName = Guid.NewGuid().ToString() + ext;
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/mg", fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var file = Request.Form.Files.GetFile("PosterPicture");
+                if (file != null && file.Length > 0)
                 {
-                    await ImageFile.CopyToAsync(stream);
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "PosterPicture", "2025");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    movie.PosterPicture = Path.Combine("wwwroot", "images", "PosterPicture", "2025", uniqueFileName); // 存相對路徑
                 }
-                movieGroup.GroupNote = "/images/mg/" + fileName;
+                _context.Add(movie);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-
-            _context.Add(movieGroup);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            return View(movie);
         }
 
         // GET: Movies/Edit/5
@@ -120,9 +146,9 @@ namespace backStage.Controllers
                 return NotFound();
             }
 
-            // 查舊資料（保留舊圖片）
-            var oldGroup = await _context.MovieGroups.AsNoTracking().FirstOrDefaultAsync(m => m.GroupId == id);
-            if (oldGroup == null)
+            var movie = await _context.Movies
+                .FirstOrDefaultAsync(m => m.MovieId == id);
+            if (movie == null)
             {
                 return NotFound();
             }
@@ -169,6 +195,8 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        //[RequestSizeLimit(MultipartBodyLengthLimit = 2048000)]
+        [RequestSizeLimit(2048000)]
         public async Task<IActionResult> Edit(int id, [Bind("MovieId,MovieNameChinese,MovieNameEnglish,MovieRatingId,Duration,ReleaseDate,EndDate,IsReleased,IsUpcoming,IsNowShowing,IsEnded,Director,Starring,Production,Distributor,Country,Plot,PosterPicture,TrailerUrl,ViewCount,BoxOffice")] Movie movie)
         {
             if (id != movie.MovieId)
@@ -180,21 +208,50 @@ namespace backStage.Controllers
             {
                 try
                 {
-                    _context.Update(movie);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MovieExists(movie.MovieId))
+                    // 先從資料庫讀取舊資料
+                    Movie? m = await _context.Movies.FindAsync(id);
+                    if (m == null)
                     {
                         return NotFound();
                     }
+
+                    var file = Request.Form.Files.GetFile("PosterPicture");
+                    if (file != null && file.Length > 0)
+                    {
+                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "PosterPicture", "2025");
+                        if (!Directory.Exists(uploadsFolder))
+                            Directory.CreateDirectory(uploadsFolder);
+
+                        var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(fileStream);
+                        }
+
+                        movie.PosterPicture = Path.Combine("images", "posterPicture", uniqueFileName); // 存相對路徑
+                    }
                     else
                     {
-                        throw;
+                        // 沒上傳新圖，保留原本圖片資料
+                        movie.PosterPicture = m.PosterPicture;
                     }
+
+                    // 避免 Entity Framework 追蹤原物件造成衝突
+                    _context.Entry(m).State = EntityState.Detached;
+
+                    // 更新資料
+                    _context.Update(movie);
+                    await _context.SaveChangesAsync();
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    // 你可以加錯誤處理
+                    ModelState.AddModelError("", "更新圖片失敗: " + ex.Message);
+                    return View(movie);
+                }
+
             }
             return View(movie);
         }
