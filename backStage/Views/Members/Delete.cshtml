@@ -4,9 +4,8 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>刪除</h1>
+<h1 class="mt-2">刪除會員</h1>
 
-<h3>確定要刪除嗎?</h3>
 <div>
     <h4>會員</h4>
     <hr />
@@ -64,6 +63,6 @@
     <form asp-action="Delete">
         <input type="hidden" asp-for="MemberId" />
         <input type="submit" value="確定刪除" class="btn btn-danger" /> |
-        <a asp-action="Index">上一頁</a>
+        <a class="btn btn-secondary" asp-action="Index">上一頁</a>
     </form>
 </div>

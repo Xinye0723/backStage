@@ -55,7 +55,7 @@ namespace backStage.Controllers
             if (movie == null || string.IsNullOrEmpty(movie.PosterPicture))
             {
                 // 直接用 no-image 路徑
-                imagePath = Path.Combine(Directory.GetCurrentDirectory(), 
+                imagePath = Path.Combine(Directory.GetCurrentDirectory(),
                     "wwwroot", "images", "posterPicture", "no-image.jpg");
             }
 
@@ -108,11 +108,14 @@ namespace backStage.Controllers
         // POST: Movies/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Movies/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(MovieGroup movieGroup, IFormFile ImageFile)
+        public async Task<IActionResult> Create([Bind("MovieId,MovieNameChinese,MovieNameEnglish,MovieRatingId,Duration,ReleaseDate,EndDate,IsReleased,IsUpcoming,IsNowShowing,IsEnded,Director,Starring,Production,Distributor,Country,Plot,PosterPicture,TrailerUrl,ViewCount,BoxOffice")] Movie movie)
         {
-            if (ImageFile != null && ImageFile.Length > 0)
+            if (ModelState.IsValid)
             {
                 var file = Request.Form.Files.GetFile("PosterPicture");
                 if (file != null && file.Length > 0)
@@ -139,9 +142,9 @@ namespace backStage.Controllers
         }
 
         // GET: Movies/Edit/5
-        public async Task<IActionResult> Edit(int id, MovieGroup movieGroup, IFormFile ImageFile)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (id != movieGroup.GroupId)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -153,42 +156,12 @@ namespace backStage.Controllers
                 return NotFound();
             }
 
-            // 有新圖片就存新檔案路徑（這裡要改 mg）
-            if (ImageFile != null && ImageFile.Length > 0)
-            {
-                var ext = Path.GetExtension(ImageFile.FileName);
-                var fileName = Guid.NewGuid().ToString() + ext;
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/mg", fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await ImageFile.CopyToAsync(stream);
-                }
-                movieGroup.GroupNote = "/images/mg/" + fileName;
-            }
-            else
-            {
-                movieGroup.GroupNote = oldGroup.GroupNote;
-            }
-
-            try
-            {
-                _context.Update(movieGroup);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.MovieGroups.Any(e => e.GroupId == movieGroup.GroupId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return RedirectToAction(nameof(Index));
+            ViewData["MovieRatingId"] = new SelectList(
+                _context.MovieRatings,
+                "MovieRatingId",
+                "FullName"
+            );
+            return View(movie);
         }
         // POST: Movies/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.

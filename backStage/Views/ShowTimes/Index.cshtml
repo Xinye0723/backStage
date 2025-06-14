@@ -157,9 +157,17 @@
               const name = (await DayPilot.Modal.prompt("請輸入場次名稱：", "")).result?.trim();
               dp.clearSelection();
               if (!name) return;
-
+              if (!moviesMap.has(name)) 
+              {
+                Swal.fire({
+                icon: "warning",
+                title: `「${name}」尚未上架`,
+                text: "請先到『電影管理』完成上架後再排片。",
+                 });
+                return;                                // ← 直接中斷，不新增
+              }
               const dur     = moviesMap.get(name) ?? 0;
-              const rounded = Math.ceil(dur / 5) * 5 || 5;   // 向上取 5 分
+              const rounded = (Math.ceil(dur / 5)+1) * 5 || 5;   // 向上取 5 分
               const end     = a.start.addMinutes(rounded);
 
               dp.events.add({ id: DayPilot.guid(), start: a.start, end, resource: a.resource, text: name });

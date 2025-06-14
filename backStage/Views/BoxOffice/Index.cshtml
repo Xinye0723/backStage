@@ -1,0 +1,45 @@
+﻿@model List<dynamic>
+
+@{
+    ViewData["Title"] = "台灣票房排行";
+    var movieNames = Model.Select(m => m.MovieName).ToList();
+    var boxOffices = Model.Select(m => Convert.ToDouble(m.BoxOffice)).ToList();
+}
+
+<h2 class="text-center">全台票房排行 Top 10</h2>
+
+<div id="chart" style="width:100%; height:500px;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+    var chartDom = document.getElementById('chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        title: {
+            text: '全台票房前10名',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(movieNames))
+        },
+        yAxis: {
+            type: 'value',
+            name: '票房 (元)'
+        },
+        series: [{
+            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(boxOffices)),
+            type: 'bar'
+        }]
+    };
+
+    myChart.setOption(option);
+</script>
+

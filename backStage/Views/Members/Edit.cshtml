@@ -11,11 +11,10 @@
         border: 1px solid #ccc;
     }
 </style>
-<h1>編輯</h1>
+<h1 class="mt-2"> 編輯會員資料</h1>
 
-<h4>會員</h4>
 <hr />
-<div class="row scrollable-container">
+<div class="row">
     <div class="col-md-4">
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -81,7 +80,9 @@
                 <span asp-validation-for="MemberPermission" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="儲存" class="btn btn-primary" />
+                <input type="submit" value="儲存" class="btn btn-warning" />
+                <a asp-action="Index" class="btn btn-secondary ms-3">上一頁</a>
+
             </div>
         </form>
     </div>
@@ -129,9 +130,7 @@
      });
     </script>
 
-<div>
-    <a asp-action="Index">上一頁</a>
-</div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

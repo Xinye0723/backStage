@@ -1,13 +1,14 @@
-using backStage.Data;
+ï»¿using backStage.Data;
 using backStage.Models;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ¢w¢w¢w¢w¢w¢w¢w¢w 1.  DI °Ï ¢w¢w¢w¢w¢w¢w¢w¢w
+// â”€â”€â”€â”€â”€â”€â”€â”€ 1.  DI å€ â”€â”€â”€â”€â”€â”€â”€â”€
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                      ?? throw new InvalidOperationException("§ä¤£¨ì³s½u¦r¦ê DefaultConnection");
+                      ?? throw new InvalidOperationException("æ‰¾ä¸åˆ°é€£ç·šå­—ä¸² DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseSqlServer(connectionString));
@@ -15,10 +16,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 builder.Services.AddDbContext<MovieContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("movie")));
 
-// ? ¥ıµù¥U Distributed Memory Cache¡]Session »İ­n¡^
+// ? å…ˆè¨»å†Š Distributed Memory Cacheï¼ˆSession éœ€è¦ï¼‰
 builder.Services.AddDistributedMemoryCache();
 
-// ? Session ªA°È
+// ? Session æœå‹™
 builder.Services.AddSession(opt =>
 {
     opt.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -26,9 +27,9 @@ builder.Services.AddSession(opt =>
     opt.Cookie.IsEssential = true;
 });
 
-// ¦pªG Razor / Controller »İ­nª`¤J HttpContextAccessor
+// å¦‚æœ Razor / Controller éœ€è¦æ³¨å…¥ HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddHttpClient();
 builder.Services.AddDefaultIdentity<IdentityUser>(o => o.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -36,7 +37,7 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ¢w¢w¢w¢w¢w¢w¢w¢w 2. Middleware °Ï ¢w¢w¢w¢w¢w¢w¢w¢w
+// â”€â”€â”€â”€â”€â”€â”€â”€ 2. Middleware å€ â”€â”€â”€â”€â”€â”€â”€â”€
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -52,17 +53,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// ? ¦pªG¦³ Identity¡A¥ıÅçÃÒ¨­¤À
-app.UseAuthentication();
+app.UseSession();          // â† ç§»åˆ°é€™è£¡
 
-// ? ±Ò¥Î Session  (¤@©w­n¦b Authorization ¤§«e)
-app.UseSession();
+app.UseAuthentication();   // â† åœ¨ Session ä¹‹å¾Œ
 
-app.UseAuthorization();
+app.UseAuthorization();    // â† åªä¿ç•™ä¸€æ¬¡
 
+app.MapControllers();      // â† å…ˆè¨»å†Šå±¬æ€§è·¯ç”±
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Staffs}/{action=Login}/{id?}");
-app.MapRazorPages();
+
 
 app.Run();
