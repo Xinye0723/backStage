@@ -95,7 +95,7 @@
             </td>
             <td>@rowNumber</td>
             <td>
-                @Html.DisplayFor(modelItem => item.PosterPicture)
+                <partial name = "_ShowPicturePartial" model="@item" />
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MovieNameChinese)

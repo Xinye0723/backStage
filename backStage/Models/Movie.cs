@@ -32,16 +32,16 @@ public partial class Movie
     [Display(Name = "下檔日期")]
     public DateOnly EndDate { get; set; }
 
-    [Display(Name = "是否已上映")]
+    [Display(Name = "已上映")]
     public bool IsReleased { get; set; }
 
-    [Display(Name = "是否即將上映")]
+    [Display(Name = "即將上映")]
     public bool IsUpcoming { get; set; }
 
-    [Display(Name = "是否現正熱映")]
+    [Display(Name = "現正熱映")]
     public bool IsNowShowing { get; set; }
 
-    [Display(Name = "是否已下檔")]
+    [Display(Name = "已下檔")]
     public bool IsEnded { get; set; }
 
     [Display(Name = "導演")]
