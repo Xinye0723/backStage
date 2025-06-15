@@ -3,13 +3,12 @@
 
 @{
     Movie m = await _context.Movies.FindAsync(Model.MovieId);
-    if (m != null && m.PosterPicture != null)
+    if (m != null && !string.IsNullOrEmpty(m.PosterPicture))
     {
         <img src="@Url.Action("GetPosterPicture", "Movies", new { id = Model.MovieId })" alt="海報" style="height: 230px; width: 150px" title="@Model.MovieNameChinese" />
     }
     else // 顯示替代圖案
     {
-        <img src="~/images/posterPicture/no-image.jpg" , new { id=Model.MovieId })" alt="海報"
-             style="height: 230px; width: 150px" title="尚無圖片" asp-append-version="true" />
+        <img src="~/images/posterPicture/no-image.jpg" alt="海報" style="height: 230px; width: 150px" title="尚無圖片" asp-append-version="true" />
     }
 }

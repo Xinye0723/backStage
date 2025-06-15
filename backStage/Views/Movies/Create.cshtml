@@ -10,12 +10,13 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="PosterPicture" class="control-label"></label>
-                <img src="~/images/posterpicture/no-image.jpg" />
-                <input asp-for="PosterPicture" type="file" class="form-control" accept="image/*" />
+                <img src="~/images/posterpicture/no-image.jpg" alt="預設海報" style="max-width: 150px; max-height: 230px;" />
+                <input asp-for="PosterPicture" type="file" name="posterPicture" class="form-control" accept="image/*" />
+                <span asp-validation-for="PosterPicture" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="MovieNameChinese" class="control-label"></label>
@@ -116,7 +117,7 @@
                 <span asp-validation-for="BoxOffice" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> 新增</button> |
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> 新增</button>
                 <a asp-action="Index" class="btn btn-secondary">取消</a>
             </div>
         </form>

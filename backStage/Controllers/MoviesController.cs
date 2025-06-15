@@ -61,12 +61,12 @@ namespace backStage.Controllers
 
             else
             {
-                imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "posterPicture", movie.PosterPicture);
+                imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", movie.PosterPicture);
 
                 if (!System.IO.File.Exists(imagePath))
                 {
                     // 找不到檔案也用 no-image
-                    imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "no-image.jpg");
+                    imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "posterPicture", "no-image.jpg");
                 }
             }
 
@@ -113,26 +113,33 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MovieId,MovieNameChinese,MovieNameEnglish,MovieRatingId,Duration,ReleaseDate,EndDate,IsReleased,IsUpcoming,IsNowShowing,IsEnded,Director,Starring,Production,Distributor,Country,Plot,PosterPicture,TrailerUrl,ViewCount,BoxOffice")] Movie movie)
+        public async Task<IActionResult> Create([Bind("MovieId,MovieNameChinese,MovieNameEnglish,Genre,MovieRatingId,Duration,ReleaseDate,EndDate,IsReleased,IsUpcoming,IsNowShowing,IsEnded,Director,Starring,Production,Distributor,Country,Plot,PosterPicture,TrailerUrl,ViewCount,BoxOffice")] Movie movie)
         {
             if (ModelState.IsValid)
             {
-                var file = Request.Form.Files.GetFile("PosterPicture");
+                var file = Request.Form.Files.GetFile("posterPicture");
                 if (file != null && file.Length > 0)
                 {
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "PosterPicture", "2025");
+                    var ext = Path.GetExtension(file.FileName);
+                    var fileName = Guid.NewGuid().ToString() + ext;
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/posterPicture");
                     if (!Directory.Exists(uploadsFolder))
                         Directory.CreateDirectory(uploadsFolder);
 
-                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    //var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(uploadsFolder, fileName);
 
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await file.CopyToAsync(fileStream);
                     }
 
-                    movie.PosterPicture = Path.Combine("wwwroot", "images", "PosterPicture", "2025", uniqueFileName); // 存相對路徑
+                    movie.PosterPicture = $"images/posterPicture/{fileName}"; // 存相對路徑
+                }
+                else
+                {
+                    // 如果沒有上傳圖片，可以給預設圖片路徑或留空
+                    movie.PosterPicture = "images/posterPicture/no-image.jpg";
                 }
                 _context.Add(movie);
                 await _context.SaveChangesAsync();
@@ -169,8 +176,8 @@ namespace backStage.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //[RequestSizeLimit(MultipartBodyLengthLimit = 2048000)]
-        [RequestSizeLimit(2048000)]
-        public async Task<IActionResult> Edit(int id, [Bind("MovieId,MovieNameChinese,MovieNameEnglish,MovieRatingId,Duration,ReleaseDate,EndDate,IsReleased,IsUpcoming,IsNowShowing,IsEnded,Director,Starring,Production,Distributor,Country,Plot,PosterPicture,TrailerUrl,ViewCount,BoxOffice")] Movie movie)
+        //[RequestSizeLimit(2048000)]
+        public async Task<IActionResult> Edit(int id, [Bind("MovieId,MovieNameChinese,MovieNameEnglish,Genre,MovieRatingId,Duration,ReleaseDate,EndDate,IsReleased,IsUpcoming,IsNowShowing,IsEnded,Director,Starring,Production,Distributor,Country,Plot,PosterPicture,TrailerUrl,ViewCount,BoxOffice")] Movie movie)
         {
             if (id != movie.MovieId)
             {
@@ -182,37 +189,38 @@ namespace backStage.Controllers
                 try
                 {
                     // 先從資料庫讀取舊資料
-                    Movie? m = await _context.Movies.FindAsync(id);
-                    if (m == null)
+                    var oldMovie = await _context.Movies.FindAsync(id);
+                    if (oldMovie == null)
                     {
                         return NotFound();
                     }
 
-                    var file = Request.Form.Files.GetFile("PosterPicture");
+                    var file = Request.Form.Files.GetFile("posterPicture");
                     if (file != null && file.Length > 0)
                     {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "PosterPicture", "2025");
+                        var ext = Path.GetExtension(file.FileName);
+                        var fileName = Guid.NewGuid().ToString() + ext;
+                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/posterPicture");
                         if (!Directory.Exists(uploadsFolder))
                             Directory.CreateDirectory(uploadsFolder);
 
-                        var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        var filePath = Path.Combine(uploadsFolder, fileName);
 
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
                             await file.CopyToAsync(fileStream);
                         }
 
-                        movie.PosterPicture = Path.Combine("images", "posterPicture", uniqueFileName); // 存相對路徑
+                        movie.PosterPicture = $"images/posterPicture/{fileName}"; // 存相對路徑
                     }
                     else
                     {
                         // 沒上傳新圖，保留原本圖片資料
-                        movie.PosterPicture = m.PosterPicture;
+                        movie.PosterPicture = oldMovie.PosterPicture;
                     }
 
                     // 避免 Entity Framework 追蹤原物件造成衝突
-                    _context.Entry(m).State = EntityState.Detached;
+                    _context.Entry(oldMovie).State = EntityState.Detached;
 
                     // 更新資料
                     _context.Update(movie);
@@ -220,11 +228,16 @@ namespace backStage.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // 你可以加錯誤處理
-                    ModelState.AddModelError("", "更新圖片失敗: " + ex.Message);
-                    return View(movie);
+                    if (!_context.Movies.Any(e => e.MovieId == id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-
+                return RedirectToAction(nameof(Index));
             }
             return View(movie);
         }

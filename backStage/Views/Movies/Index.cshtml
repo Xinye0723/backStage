@@ -10,7 +10,7 @@
     <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-film"></i> 電影新增</a>
 </p>
 <div>
-    <table id="moviesTable" style="min-width:1400px" 
+    <table id="moviesTable" style="min-width:1200px" 
             class="table movie-table table-hover table-bordered align-middle">
     <thead class="table-dark">
         <tr>
@@ -22,9 +22,9 @@
             <th>
                 中文片名
             </th>
-            <th>
+            @* <th>
                 英文片名
-            </th>
+            </th> *@
             <th>
                 類型
             </th>
@@ -40,18 +40,18 @@
             @* <th>
                 下檔日期
             </th> *@
-            <th>
+            @* <th>
                 已上映
-            </th>
-            <th>
+            </th> *@
+            @* <th>
                 即將上映
-            </th>
+            </th> *@
             @* <th>
                 現正熱映
             </th> *@
-            <th>
+            @* <th>
                 已下檔
-            </th>
+            </th> *@
             <th>
                 導演
             </th>
@@ -100,9 +100,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.MovieNameChinese)
             </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.MovieNameEnglish)
-            </td>
+            </td> *@
             <td>
                 @Html.DisplayFor(modelItem => item.Genre)
             </td>
@@ -118,18 +118,18 @@
             @* <td>
                 @Html.DisplayFor(modelItem => item.EndDate)
             </td> *@
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.IsReleased)
-            </td>
-            <td>
+            </td> *@
+            @* <td>
                 @Html.DisplayFor(modelItem => item.IsUpcoming)
-            </td>
+            </td> *@
             @* <td>
                 @Html.DisplayFor(modelItem => item.IsNowShowing)
             </td> *@
-            <td>
+            @* <td>
                 @Html.DisplayFor(modelItem => item.IsEnded)
-            </td>
+            </td> *@
             <td>
                 @Html.DisplayFor(modelItem => item.Director)
             </td>
