@@ -151,7 +151,7 @@
                        placeholder="請輸入密碼"
                        required />
                 <div class="forgot-password">
-                    <a href="/Account/ForgotPassword">忘記密碼？</a>
+                    <a asp-controller="Staffs" asp-action="ForgotPassword">忘記密碼？</a>
                 </div>
                 <button type="submit" class="login-button">登入</button>
                 @if (ViewBag.ErrorMessage != null)

@@ -104,7 +104,7 @@ namespace backStage.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Member member, IFormFile ImageFile)
+        public async Task<IActionResult> Edit(int id, Member member)
         {
             if (id != member.MemberId)
                 return NotFound();
@@ -112,24 +112,17 @@ namespace backStage.Controllers
             if (!ModelState.IsValid)
                 return View(member);
 
-            // 取得舊的資料紀錄
             var existingMember = await _context.Members.FindAsync(id);
             if (existingMember == null)
                 return NotFound();
 
-            // 更新文字欄位
-            existingMember.MemberName = member.MemberName;
-            existingMember.MemberPassword = member.MemberPassword;
-            existingMember.MemberGender = member.MemberGender;
-            existingMember.MemberBirthDate = member.MemberBirthDate;
-            existingMember.MemberEmail = member.MemberEmail;
-            existingMember.MemberIntroSelf = member.MemberIntroSelf;
-            existingMember.MemberPermission = member.MemberPermission;
+            // 更新文字欄位（直接取代全部欄位）
+            _context.Entry(existingMember).CurrentValues.SetValues(member);
 
-            // 處理圖片上傳
-            if (ImageFile != null && ImageFile.Length > 0)
+            // 如果有圖片檔案才特別處理
+            if (member.MemberImgUpload != null && member.MemberImgUpload.Length > 0)
             {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(ImageFile.FileName)}";
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(member.MemberImgUpload.FileName)}";
                 var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
                 if (!Directory.Exists(uploadPath))
@@ -138,16 +131,16 @@ namespace backStage.Controllers
                 var filePath = Path.Combine(uploadPath, fileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await ImageFile.CopyToAsync(stream);
+                    await member.MemberImgUpload.CopyToAsync(stream);
                 }
 
-                // 儲存相對路徑到資料庫欄位
                 existingMember.MemberImg = $"/uploads/{fileName}";
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
 
 

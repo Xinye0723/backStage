@@ -46,6 +46,29 @@ namespace backStage.Controllers
             return RedirectToAction("Login");
         }
         /* ---------- CRUD ---------- */
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var staff = await _context.Staff.FirstOrDefaultAsync(s => s.StaffEmail == email);
+            if (staff == null)
+            {
+                ViewBag.Message = "查無此 Email 帳號";
+                return View();
+            }
+
+            // 寄信
+            var emailService = new EmailService();
+            await emailService.SendPasswordEmailAsync(email, staff.StaffPassword);
+
+            ViewBag.Message = "密碼已寄出，請查收信箱";
+            return View();
+        }
 
         // GET: Staffs
         public async Task<IActionResult> Index()

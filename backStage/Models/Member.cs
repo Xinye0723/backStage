@@ -18,6 +18,7 @@ public partial class Member
     public string MemberGenderDisplay => MemberGender == "M" ? "男" : "女";
 
     [Display(Name = "生日")]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime MemberBirthDate { get; set; }
 
     public string MemberBirthDateDisplay => MemberBirthDate.ToString("yyyy-MM-dd");
