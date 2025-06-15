@@ -116,10 +116,16 @@ namespace backStage.Controllers
             if (existingMember == null)
                 return NotFound();
 
-            // 更新文字欄位（直接取代全部欄位）
-            _context.Entry(existingMember).CurrentValues.SetValues(member);
+            // ✅ 手動更新每個欄位（避免 SetValues 問題）
+            existingMember.MemberName = member.MemberName;
+            existingMember.MemberPassword = member.MemberPassword;
+            existingMember.MemberGender = member.MemberGender;
+            existingMember.MemberBirthDate = member.MemberBirthDate;
+            existingMember.MemberEmail = member.MemberEmail;
+            existingMember.MemberIntroSelf = member.MemberIntroSelf;
+            existingMember.MemberPermission = member.MemberPermission;
 
-            // 如果有圖片檔案才特別處理
+            // ✅ 改用 member.MemberImgUpload 處理圖片
             if (member.MemberImgUpload != null && member.MemberImgUpload.Length > 0)
             {
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(member.MemberImgUpload.FileName)}";
@@ -140,6 +146,8 @@ namespace backStage.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+
 
 
 

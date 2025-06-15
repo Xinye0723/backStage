@@ -60,7 +60,7 @@
                         <img src="@Model.MemberImg" alt="目前活動圖片" style="max-width: 200px; max-height: 200px; border:1px solid #ccc;" />
                     </div> *@
                 }
-                <input type="file" name="ImageFile" class="form-control" />
+                <input asp-for="MemberImgUpload" type="file" class="form-control" />
                 <input type="hidden" asp-for="MemberImg" />
             </div>
 
@@ -95,7 +95,7 @@
         // 即時預覽功能
     let formChanged = false;
     // 即時預覽圖片
-    const fileInput = document.querySelector('input[type="file"][name="ImageFile"]');
+    const fileInput = document.querySelector('input[type="file"][name="MemberImgUpload"]');
     const previewImg = document.getElementById('preview');
 
     fileInput.addEventListener('change', function () {
