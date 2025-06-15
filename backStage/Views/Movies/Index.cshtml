@@ -4,15 +4,13 @@
     ViewData["Title"] = "電影清單";
 }
 
-<h1>@ViewData["Title"]</h1>
-
 <p>
-    <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-film"></i> 電影新增</a>
+    <a asp-action="Create" class="btn btn-success mt-2"><i class="fa-solid fa-film"></i> 電影新增</a>
 </p>
 <div>
     <table id="moviesTable" style="min-width:1200px" 
             class="table movie-table table-hover table-bordered align-middle">
-    <thead class="table-dark">
+    <thead class="table-active">
         <tr>
             <th></th>
             <th>編號</th>
@@ -89,9 +87,9 @@
     @foreach (var item in Model) {
         <tr>
             <td>
-                <a asp-action="Edit" class="btn btn-success" asp-route-id="@item.MovieId"> <i class="fa-solid fa-user-pen"></i>編輯</a>
-                <a asp-action="Details" class="btn btn-warning" asp-route-id="@item.MovieId"><i class="fa-solid fa-database"></i> 細項</a>
-                <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.MovieId"><i class="fa-solid fa-trash"></i> 刪除</a>
+                <a asp-action="Edit" class="btn btn-success mb-2" asp-route-id="@item.MovieId"> <i class="fa-solid fa-user-pen"></i>編輯</a>
+                <a asp-action="Details" class="btn btn-warning mb-2" asp-route-id="@item.MovieId"><i class="fa-solid fa-database"></i> 細項</a>
+                <a asp-action="Delete" class="btn btn-danger mb-2" asp-route-id="@item.MovieId"><i class="fa-solid fa-trash"></i> 刪除</a>
             </td>
             <td>@rowNumber</td>
             <td>

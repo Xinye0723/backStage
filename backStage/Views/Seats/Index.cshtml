@@ -300,6 +300,15 @@
 @section Scripts
 {
     <script>
+                function swalAlert(icon, text) {
+            Swal.fire({
+                icon,
+                text,
+                confirmButtonText: '確定',
+                // 這行可依品牌色調整
+                confirmButtonColor: '#3085d6'
+            });
+        }
         /* =======================================================
            0. 一進頁面先把 body 設為 read-only ── 禁用椅子不能點
            =======================================================*/
@@ -470,7 +479,7 @@
         function refreshSeats(){
             const tn = hallSelect.value.trim();
             if (!tn){
-                alert('請先選擇影廳');
+                swalAlert('info', '請先選擇影廳');
                 return;
             }
 
@@ -501,7 +510,7 @@
             })
             .catch(err=>{
                 console.error(err);
-                alert('重新載入失敗！');
+                swalAlert('error', '重新載入失敗！');
             });
         }
 
@@ -530,16 +539,16 @@
             .then(r=>r.json())
             .then(res=>{
                 if(res.success){
-                    alert('已儲存');
+                    swalAlert('success', '已儲存');
                     statusMap.clear();
                     quitEditMode();
                 }else{
-                    alert('儲存失敗：'+res.message);
+                    swalAlert('error', '儲存失敗：'+res.message);
                 }
             })
             .catch(err=>{
                 console.error(err);
-                alert('連線錯誤：'+err);
+                swalAlert('error', '連線錯誤：'+err);
             });
         }
 
