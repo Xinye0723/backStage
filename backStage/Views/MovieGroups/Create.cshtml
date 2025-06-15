@@ -55,6 +55,23 @@
             <label for="ImageFile">活動圖片</label>
             <input type="file" name="ImageFile" id="ImageFile" class="form-control" />
             </div>
+            <div class="form-group">
+                <img id="preview" src="#" alt="預覽圖片" style="max-width: 200px; display: none;" />
+            </div>
+            <script>
+                document.getElementById('ImageFile').addEventListener('change', function(e) {
+                    var file = e.target.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var preview = document.getElementById('preview');
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            </script>
             <!-- 其他輸入欄位（可以先不用顯示 Status 這個欄位，因為我們自動設定圖片路徑） -->
             <div class="form-group mt-3">
                 <button type="submit" class="btn btn-primary">新增</button>
