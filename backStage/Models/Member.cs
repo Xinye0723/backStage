@@ -20,7 +20,7 @@ public partial class Member
     [Display(Name = "生日")]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime MemberBirthDate { get; set; }
-
+    
     public string MemberBirthDateDisplay => MemberBirthDate.ToString("yyyy-MM-dd");
     [Display(Name = "Email")]
     public string MemberEmail { get; set; } = null!;
