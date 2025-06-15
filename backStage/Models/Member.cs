@@ -27,7 +27,7 @@ public partial class Member
     [Display(Name = "自我介紹")]
 
     public string MemberIntroSelf { get; set; } = null!;
-    [Display(Name = "照片")]
+    [Display(Name = "會員照片")]
     [NotMapped]
     public IFormFile? MemberImgUpload { get; set; }
     public string MemberImg { get; set; } = null!;
