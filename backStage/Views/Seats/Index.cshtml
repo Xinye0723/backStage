@@ -233,11 +233,7 @@
                         <button id="setSold" class="btn btn-warning text-white">設為售出</button>
                         <button id="setMaintenance" class="btn btn-danger">設為維修</button>
                         <button id="setNormal" class="btn btn-dark">狀態重置</button>
-                        <button id="reloadSeats"
-                                class="btn btn-dark "
-                                type="button">
-                            
-                        </button>
+                        <button id="reloadSeats" class="btn btn-dark " type="button">重新載入</button>
                         <button id="saveChanges" class="btn btn-success">儲存</button>
                     </div>
                 </div>
@@ -301,299 +297,265 @@
 
     </div>
 </div>
-@section Scripts {
-    <script>
-        /* -----------------------------------------------------------
-         * SweetAlert2 小工具：icon＋文字
-         * ---------------------------------------------------------*/
-        function swalAlert(icon, text){
-            Swal.fire({
-                icon,
-                text,
-                confirmButtonText: '確定',
-                confirmButtonColor: '#3085d6'
-            });
-        }
+<script>
+    /* -----------------------------------------------------------
+     * SweetAlert2 小工具：icon＋文字
+     * ---------------------------------------------------------*/
+    function swalAlert(icon, text) {
+        Swal.fire({
+            icon,
+            text,
+            confirmButtonText: '確定',
+            confirmButtonColor: '#3085d6'
+        });
+    }
 
-        /* ===========================================================
-         * 0. 預設把整頁設為「唯讀」；未進編輯模式前座位不得點
-         * =========================================================*/
-        document.body.classList.add('read-only');
+    /* ===========================================================
+     * 0. 預設把整頁設為「唯讀」；未進編輯模式前座位不得點
+     * =========================================================*/
+    document.body.classList.add('read-only');
 
-        /* ===========================================================
-         * 1. DOM 快速索引
-         * =========================================================*/
-        const editBtn    = document.getElementById('editModeBtn');
-        const bar        = document.getElementById('seatEditBar');
-        const hallSelect = document.getElementById('hallSelect');
-        const deleteBtn  = document.getElementById('deleteHallBtn');
-        const seatWrap   = document.querySelector('.seats-wrapper');
+    /* ===========================================================
+     * 1. DOM 快速索引
+     * =========================================================*/
+    const editBtn    = document.getElementById('editModeBtn');
+    const bar        = document.getElementById('seatEditBar');
+    const hallSelect = document.getElementById('hallSelect');
+    const deleteBtn  = document.getElementById('deleteHallBtn');
+    const seatWrap   = document.querySelector('.seats-wrapper');
 
-        const btnDisable = document.getElementById('setDisabled');
-        const btnSold    = document.getElementById('setSold');
-        const btnMain    = document.getElementById('setMaintenance');
-        const btnNormal  = document.getElementById('setNormal');     // ← 重設鈕
-        const btnReload  = document.getElementById('reloadSeats');
-        const btnSave    = document.getElementById('saveChanges');
+    const btnDisable = document.getElementById('setDisabled');
+    const btnSold    = document.getElementById('setSold');
+    const btnMain    = document.getElementById('setMaintenance');
+    const btnNormal  = document.getElementById('setNormal');      // ← 狀態重置（局部／整廳）
+    const btnReset   = document.getElementById('reloadSeats');    // ← 改：整廳重置
+    const btnSave    = document.getElementById('saveChanges');
 
-        const baseDelUrl = deleteBtn.dataset.base;                   // /Seats/DeleteHall
-        const indexUrl   = '@Url.Action("Index", "Seats")';          // Razor→JS
+    const baseDelUrl = deleteBtn.dataset.base;                    // /Seats/DeleteHall
+    const indexUrl   = '@Url.Action("Index", "Seats")';           // Razor→JS
 
-        /* ===========================================================
-         * 2. 前端狀態集合
-         * =========================================================*/
-        let   editing   = false;          // 是否在「編輯模式」
-        const picked    = new Set();      // 已框選座位 key = 'row-col'
-        const statusMap = new Map();      // 要送後端的變動  'row-col' → null / occupied / ...
+    /* ===========================================================
+     * 2. 前端狀態集合
+     * =========================================================*/
+    let   editing   = false;          // 是否在「編輯模式」
+    const picked    = new Set();      // 已框選座位 key = 'row-col'
+    const statusMap = new Map();      // 要送後端的變動  'row-col' → null / occupied / ...
 
-        /* ===========================================================
-         * 3. 拖曳旗標
-         * =========================================================*/
-        let dragging   = false;
-        let dragStarts = false;
+    /* ===========================================================
+     * 3. 拖曳旗標
+     * =========================================================*/
+    let dragging   = false;
+    let dragStarts = false;
 
-        /* ===========================================================
-         * 4. 初始事件繫結（DOMContentLoaded）
-         * =========================================================*/
-        document.addEventListener('DOMContentLoaded', () => {
+    /* ===========================================================
+     * 4. 初始事件繫結（DOMContentLoaded）
+     * =========================================================*/
+    document.addEventListener('DOMContentLoaded', () => {
 
-            /* 4-1 ▼ 影廳切換 */
-            hallSelect.addEventListener('change', e=>{
-                const v = e.target.value.trim();
-                toggleDeleteBtn(v);
-                if (v) location.href = `${indexUrl}?theaterNumber=${v}`;
-            });
-            toggleDeleteBtn(hallSelect.value.trim());
+        /* 4-1 ▼ 影廳切換 */
+        hallSelect.addEventListener('change', e => {
+            const v = e.target.value.trim();
+            toggleDeleteBtn(v);
+            if (v) location.href = `${indexUrl}?theaterNumber=${v}`;
+        });
+        toggleDeleteBtn(hallSelect.value.trim());
 
-            /* 4-2 ▼ 編輯模式開關 */
-            editBtn.addEventListener('click', e=>{
-                e.preventDefault();
-                editing = !editing;
-                document.body.classList.toggle('read-only', !editing);
-                editBtn.textContent = editing ? '編輯中' : '編輯影廳';
-                bar.classList.toggle('d-none');
-                if (!editing) clearAll();
-            });
-
-            /* 4-3 ▼ 重新載入（跟 DB 同步） */
-            btnReload.addEventListener('click', refreshSeats);
-
-            /* 4-4 ▼ 三種狀態按鈕 */
-            btnDisable.addEventListener ('click', ()=>applyStatus('disabled'));
-            btnSold.addEventListener    ('click', ()=>applyStatus('occupied'));
-            btnMain.addEventListener    ('click', ()=>applyStatus('maintenance'));
-
-            /* 4-5 ▼ 「重設」按鈕
-               - 若有框選 → 重設框選
-               - 否則 → 全廳重設                                           */
-            btnNormal.addEventListener('click', ()=>{
-                if (picked.size){
-                    applyStatus('normal');   // 局部
-                }else{
-                    resetAll();              // 全廳
-                }
-            });
-
-            /* 4-6 ▼ 儲存 */
-            btnSave.addEventListener('click', saveChanges);
-
-            /* 4-7 ▼ 座位 單點 / 拖曳選取 */
-            seatWrap.addEventListener('mousedown', onMouseDown);
-            seatWrap.addEventListener('mouseover', onMouseOver);
-            document.addEventListener('mouseup',   onMouseUp);
+        /* 4-2 ▼ 編輯模式開關 */
+        editBtn.addEventListener('click', e => {
+            e.preventDefault();
+            editing = !editing;
+            document.body.classList.toggle('read-only', !editing);
+            editBtn.textContent = editing ? '編輯中' : '編輯影廳';
+            bar.classList.toggle('d-none');
+            if (!editing) clearAll();
         });
 
-        /* ===========================================================
-         * 5. 事件處理
-         * =========================================================*/
-        function toggleDeleteBtn(val){
-            if (val){
-                deleteBtn.classList.remove('disabled');
-                deleteBtn.href = `${baseDelUrl}?theaterNumber=${val}`;
-            }else{
-                deleteBtn.classList.add('disabled');
-                deleteBtn.href = '#';
+        /* 4-3 ▼ 整廳重置（把所有座位設回 null）*/
+        btnReset.addEventListener('click', () => {
+            if (!editing) {
+                swalAlert('info', '請先進入編輯模式');
+                return;
             }
-        }
-
-        /* ---- 5-1 ▼ MouseDown：單點或開始拖曳 ---- */
-        function onMouseDown(e){
-            if (!editing) return;
-            const seat = e.target.closest('.seat');
-            dragStarts = !!seat && !seat.matches('.placeholder');
-            if (!dragStarts) return;
-
-            dragging = true;
-            e.preventDefault();             // 阻止反白文字
-            toggleSeat(seat);
-        }
-
-        /* ---- 5-2 ▼ 拖曳經過 ---- */
-        function onMouseOver(e){
-            if (!dragging || !editing || !dragStarts) return;
-            const seat = e.target.closest('.seat');
-            if (!seat || seat.matches('.placeholder')) return;
-            selectSeat(seat);               // 只加不減
-        }
-
-        /* ---- 5-3 ▼ MouseUp：結束拖曳 ---- */
-        function onMouseUp(){
-            dragging = false;
-            dragStarts = false;
-        }
-
-        /* ===========================================================
-         * 6. 選取輔助
-         * =========================================================*/
-        function toggleSeat(seat){
-            const k = `${seat.dataset.row}-${seat.dataset.col}`;
-            if (seat.classList.contains('selected')){
-                seat.classList.remove('selected');
-                picked.delete(k);
-            }else{
-                seat.classList.add('selected');
-                picked.add(k);
-            }
-        }
-        function selectSeat(seat){          // 只選不取消
-            const k = `${seat.dataset.row}-${seat.dataset.col}`;
-            if (!seat.classList.contains('selected')){
-                seat.classList.add('selected');
-                picked.add(k);
-            }
-        }
-
-        /* ===========================================================
-         * 7. 重設專用：一次把所有座位變正常
-         * =========================================================*/
-        function resetAll(){
-            seatWrap.querySelectorAll('.seat:not(.empty)').forEach(seat=>{
-                seat.classList.remove('selected','occupied','maintenance','disabled');
-                const k = `${seat.dataset.row}-${seat.dataset.col}`;
-                statusMap.set(k, null);     // null = 正常
-            });
-            clearAll();                     // 清框選
-        }
-
-        /* ===========================================================
-         * 8. 套用狀態（禁用 / 售出 / 維修 / 重設）
-         * =========================================================*/
-        function applyStatus(newCls){
-            if (picked.size === 0) return;
-
-            picked.forEach(k=>{
-                const [r,c] = k.split('-');
-                const seat  = seatWrap.querySelector(`.seat[data-row="${r}"][data-col="${c}"]`);
-                if (!seat) return;          // placeholder
-
-                seat.classList.remove('selected','occupied','maintenance','disabled');
-
-                if (newCls !== 'normal'){   // 要加特殊顏色
-                    seat.classList.add(newCls);
-                    statusMap.set(k, newCls);
-                }else{                      // 重設 → 回灰色
-                    statusMap.set(k, null);
-                }
-            });
-            clearAll();                     // 清框選
-        }
-
-        /* ===========================================================
-         * 9. 重新載入：從 DB 抓最新狀態
-         * =========================================================*/
-        function refreshSeats(){
-            const tn = hallSelect.value.trim();
-            if (!tn){
+            if (!hallSelect.value.trim()) {
                 swalAlert('info', '請先選擇影廳');
                 return;
             }
+            resetAll();                 // ← 直接呼叫現成的整廳重置
+        });
 
-            fetch(`/Seats/GetSeats?theaterNumber=${tn}`)
-            .then(r=>r.json())
-            .then(data=>{
-                /* 9-1 轉 Map 加速索引 */
-                const mapNow = new Map();
-                data.forEach(s=>{
-                    mapNow.set(`${s.row}-${s.number}`, s.status ?? null);
-                });
+        /* 4-4 ▼ 三種狀態按鈕 */
+        btnDisable.addEventListener('click', () => applyStatus('disabled'));
+        btnSold.addEventListener   ('click', () => applyStatus('occupied'));
+        btnMain.addEventListener   ('click', () => applyStatus('maintenance'));
 
-                /* 9-2 刷畫面 */
-                seatWrap.querySelectorAll('.seat').forEach(seat=>{
-                    const key = `${seat.dataset.row}-${seat.dataset.col}`;
-                    const st  = mapNow.get(key);
-
-                    seat.classList.remove('selected','occupied','maintenance','disabled');
-                    if (st === '已售出')       seat.classList.add('occupied');
-                    else if (st === '維修中')  seat.classList.add('maintenance');
-                    else if (st === '禁用')    seat.classList.add('disabled');
-                });
-
-                /* 9-3 清前端暫存 */
-                picked.clear();
-                statusMap.clear();
-                clearAll();
-            })
-            .catch(err=>{
-                console.error(err);
-                swalAlert('error', '重新載入失敗！');
-            });
-        }
-
-        /* ===========================================================
-         * 10. 儲存：送到 /Seats/SaveSeatEdits
-         * =========================================================*/
-        function saveChanges(){
-            const updArr = [...statusMap].map(([k,cls])=>{
-                const [row,col] = k.split('-');
-                return { row, col, status: cls };  // cls 可能是 null
-            });
-            if (updArr.length === 0){
-                quitEditMode();
-                return;
+        /* 4-5 ▼ 「重設」按鈕：有框選 → 重設框選；否則 → 整廳重設 */
+        btnNormal.addEventListener('click', () => {
+            if (picked.size) {
+                applyStatus('normal');  // 局部
+            } else {
+                resetAll();             // 全廳
             }
+        });
 
-            fetch('/Seats/SaveSeatEdits',{
-                method :'POST',
-                headers:{'Content-Type':'application/json'},
-                body   : JSON.stringify({
-                    theaterNumber : hallSelect.value,
-                    deleteSeats   : [],      // 目前不刪資料
-                    updateSeats   : updArr
-                })
-            })
-            .then(r=>r.json())
-            .then(res=>{
-                if(res.success){
-                    swalAlert('success', '已儲存');
-                    statusMap.clear();
-                    quitEditMode();
-                }else{
-                    swalAlert('error', '儲存失敗：'+res.message);
-                }
-            })
-            .catch(err=>{
-                console.error(err);
-                swalAlert('error', '連線錯誤：'+err);
-            });
+        /* 4-6 ▼ 儲存 */
+        btnSave.addEventListener('click', saveChanges);
+
+        /* 4-7 ▼ 座位 單點 / 拖曳選取 */
+        seatWrap.addEventListener('mousedown', onMouseDown);
+        seatWrap.addEventListener('mouseover', onMouseOver);
+        document.addEventListener('mouseup',   onMouseUp);
+    });
+
+    /* ===========================================================
+     * 5. 事件處理
+     * =========================================================*/
+    function toggleDeleteBtn(val) {
+        if (val) {
+            deleteBtn.classList.remove('disabled');
+            deleteBtn.href = `${baseDelUrl}?theaterNumber=${val}`;
+        } else {
+            deleteBtn.classList.add('disabled');
+            deleteBtn.href = '#';
+        }
+    }
+
+    /* ---- 5-1 ▼ MouseDown：單點或開始拖曳 ---- */
+    function onMouseDown(e) {
+        if (!editing) return;
+        const seat = e.target.closest('.seat');
+        dragStarts = !!seat && !seat.matches('.placeholder');
+        if (!dragStarts) return;
+
+        dragging = true;
+        e.preventDefault();             // 阻止反白文字
+        toggleSeat(seat);
+    }
+
+    /* ---- 5-2 ▼ 拖曳經過 ---- */
+    function onMouseOver(e) {
+        if (!dragging || !editing || !dragStarts) return;
+        const seat = e.target.closest('.seat');
+        if (!seat || seat.matches('.placeholder')) return;
+        selectSeat(seat);               // 只加不減
+    }
+
+    /* ---- 5-3 ▼ MouseUp：結束拖曳 ---- */
+    function onMouseUp() {
+        dragging = false;
+        dragStarts = false;
+    }
+
+    /* ===========================================================
+     * 6. 選取輔助
+     * =========================================================*/
+    function toggleSeat(seat) {
+        const k = `${seat.dataset.row}-${seat.dataset.col}`;
+        if (seat.classList.contains('selected')) {
+            seat.classList.remove('selected');
+            picked.delete(k);
+        } else {
+            seat.classList.add('selected');
+            picked.add(k);
+        }
+    }
+    function selectSeat(seat) {         // 只選不取消
+        const k = `${seat.dataset.row}-${seat.dataset.col}`;
+        if (!seat.classList.contains('selected')) {
+            seat.classList.add('selected');
+            picked.add(k);
+        }
+    }
+
+    /* ===========================================================
+     * 7. 重設專用：一次把所有座位變正常
+     * =========================================================*/
+    function resetAll() {
+        seatWrap.querySelectorAll('.seat:not(.empty)').forEach(seat => {
+            seat.classList.remove('selected', 'occupied', 'maintenance', 'disabled');
+            const k = `${seat.dataset.row}-${seat.dataset.col}`;
+            statusMap.set(k, null);     // null = 正常
+        });
+        clearAll();                     // 清框選
+    }
+
+    /* ===========================================================
+     * 8. 套用狀態（禁用 / 售出 / 維修 / 重設）
+     * =========================================================*/
+    function applyStatus(newCls) {
+        if (picked.size === 0) return;
+
+        picked.forEach(k => {
+            const [r, c] = k.split('-');
+            const seat = seatWrap.querySelector(`.seat[data-row="${r}"][data-col="${c}"]`);
+            if (!seat) return;          // placeholder
+
+            seat.classList.remove('selected', 'occupied', 'maintenance', 'disabled');
+
+            if (newCls !== 'normal') {  // 要加特殊顏色
+                seat.classList.add(newCls);
+                statusMap.set(k, newCls);
+            } else {                    // 重設 → 回灰色
+                statusMap.set(k, null);
+            }
+        });
+        clearAll();                     // 清框選
+    }
+
+    /* ===========================================================
+     * 9. 儲存：送到 /Seats/SaveSeatEdits
+     * =========================================================*/
+    function saveChanges() {
+        const updArr = [...statusMap].map(([k, cls]) => {
+            const [row, col] = k.split('-');
+            return { row, col, status: cls };  // cls 可能是 null
+        });
+        if (updArr.length === 0) {
+            quitEditMode();
+            return;
         }
 
-        /* ===========================================================
-         * 11. 其它共用小函式
-         * =========================================================*/
-        function clearAll(){
-            seatWrap.querySelectorAll('.seat.selected')
-                    .forEach(s=>s.classList.remove('selected'));
-            picked.clear();
-        }
-        function quitEditMode(){
-            editing = false;
-            document.body.classList.add('read-only');
-            bar.classList.add('d-none');
-            editBtn.textContent = '編輯影廳';
-            clearAll();
-        }
-    </script>
-}
+        fetch('/Seats/SaveSeatEdits', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                theaterNumber: hallSelect.value,
+                deleteSeats: [],        // 目前不刪資料
+                updateSeats: updArr
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                swalAlert('success', '已儲存');
+                statusMap.clear();
+                quitEditMode();
+            } else {
+                swalAlert('error', '儲存失敗：' + res.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            swalAlert('error', '連線錯誤：' + err);
+        });
+    }
+
+    /* ===========================================================
+     * 10. 其它共用小函式
+     * =========================================================*/
+    function clearAll() {
+        seatWrap.querySelectorAll('.seat.selected')
+            .forEach(s => s.classList.remove('selected'));
+        picked.clear();
+    }
+    function quitEditMode() {
+        editing = false;
+        document.body.classList.add('read-only');
+        bar.classList.add('d-none');
+        editBtn.textContent = '編輯影廳';
+        clearAll();
+    }
+</script>
+
 
 
 
